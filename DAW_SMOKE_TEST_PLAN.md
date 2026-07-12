@@ -46,8 +46,9 @@ If FL Studio is the only available DAW, use this release gate instead:
 Steps:
 1. Insert Sauce Box on a vocal track.
 2. Start playback.
-3. Move Drive, Texture, Tone, Mix, Output.
-4. Toggle bypass on/off repeatedly.
+3. In Free mode, move Instant Sauce, Mix, and Output.
+4. In Pro/unlocked mode, move Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and Output.
+5. Toggle bypass on/off repeatedly.
 
 Expected:
 1. No crash.

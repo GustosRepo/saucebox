@@ -16,9 +16,15 @@ These are launch presets for Sauce Box Free. Values are starting points for tuni
 
 - Sauce Box: the main texture plugin.
 - Sauce Packs: preset expansion packs.
-- Instant Sauce: a preset category or one-knob mode.
+- Instant Sauce: the Free one-knob mode and starter preset.
 - Secret Sauce: more aggressive or unusual presets.
 - Light Sauce / Extra Sauce: intensity-based preset banks.
+
+## Free vs Pro Preset Behavior
+
+- Free users load curated presets through Instant Sauce mode, then adjust Instant Sauce, Mix, and Output.
+- Pro users can open the full preset values and tweak Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and Output directly.
+- Every preset should sound good through the Free macro path before detailed Pro tweaking is considered.
 
 ## 12 Launch Presets
 

@@ -1,18 +1,26 @@
 # Sauce Box by 808Bytes - Simple Texturizer (VST3/AU)
 
-A starter JUCE plugin that adds character with a simple chain:
+Sauce Box is a JUCE texture plugin built around an Instant Sauce Free mode and a deeper Pro control set.
+
+Free mode should feel immediate:
+
+- Instant Sauce (one-knob macro)
+- Mix (dry/wet blend)
+- Output (level match)
+
+Pro unlocks the full box:
 
 - Drive (soft saturation)
-- Crush (bit depth + downsample texture)
+- Texture (bit depth + downsample texture)
 - Wow Depth + Wow Rate (subtle delay modulation)
 - Tone (post low-pass shaping)
-- Mix (dry/wet)
+- Mix and Output
 
 The larger 808Bytes product ecosystem can grow around the Sauce family:
 
 - Sauce Box: the main texture plugin
 - Sauce Packs: preset expansion packs
-- Instant Sauce: a preset category or one-knob mode
+- Instant Sauce: the Free one-knob mode
 - Secret Sauce: more aggressive or unusual presets
 - Light Sauce / Extra Sauce: intensity-based preset banks
 

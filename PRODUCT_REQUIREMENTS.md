@@ -11,10 +11,10 @@ Main business goal: convert plugin users into service clients.
 | Area | Free | Pro |
 |---|---|---|
 | Core sound engine | Yes | Yes |
-| Drive, Texture, Tone, Mix, Output | Yes | Yes |
-| Safety limiter and gain match | Yes | Yes (advanced options) |
+| Main controls | Instant Sauce, Mix, Output | Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, Output |
+| Safety limiter and gain match | Yes, automatic | Yes, with advanced options |
 | Presets | 12 curated presets | 40+ presets + favorites |
-| Macro controls | 2 macros (Warm, Bite) | 6 macros (Warm, Bite, Glue, Width, Lift, Dirt) |
+| Macro controls | 1 main macro: Instant Sauce | Additional macros (Warm, Bite, Glue, Width, Lift, Dirt) |
 | Advanced shaping | No | Yes (transient, stereo, multiband texture) |
 | Oversampling | No | Yes (2x/4x) |
 | A/B compare | No | Yes |
@@ -29,16 +29,32 @@ Main business goal: convert plugin users into service clients.
 1. Free must feel complete, not crippled.
 2. First good result must happen in under 30 seconds.
 3. Presets in Free must cover real use cases: vocals, 808, drum bus, keys, full mix.
-4. Pro lock points must be workflow and depth, not basic usability.
-5. Every version must include a soft client CTA path.
+4. Free must expose the fastest path: one big Instant Sauce knob plus Mix and Output.
+5. Pro unlocks detailed control over the full effect chain: Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and Output.
+6. Pro lock points must be workflow and depth, not basic usability.
+7. Every version must include a soft client CTA path.
+
+## Instant Sauce Mode
+
+Instant Sauce is the Free product experience. It is not a separate plugin.
+
+The center knob should feel like a producer-friendly amount control. It should move the existing effect chain as a tuned macro:
+
+1. More drive and texture as the knob increases.
+2. Subtle wow depth/rate movement that stays musical.
+3. Tone compensation so the sound does not get harsh too quickly.
+4. Mix remains available so users can blend the effect.
+5. Output remains available so users can level-match.
+
+Pro unlocks the individual controls behind that macro. This makes the upgrade feel like opening the full Sauce Box rather than buying a different sound engine.
 
 ## User Flows
 
 ### First Session Flow
 
 1. User inserts Sauce Box.
-2. Plugin opens on a Starter preset.
-3. User turns one macro and Mix.
+2. Plugin opens in Instant Sauce mode.
+3. User turns the center Instant Sauce knob and adjusts Mix if needed.
 4. User hears improvement quickly.
 5. User sees subtle CTA: Need this finished professionally?
 
@@ -51,8 +67,8 @@ Main business goal: convert plugin users into service clients.
 
 ### Upgrade Flow
 
-1. User touches Pro-only control.
-2. Short message explains outcome, not technical jargon.
+1. User clicks/touches the locked detailed controls area.
+2. Short message explains that Pro unlocks the full Sauce Box controls for deeper tweaking.
 3. User can upgrade in one action.
 4. Unlock applies immediately.
 
@@ -71,15 +87,15 @@ Sauce Box Free
 
 Fast color and texture for your tracks.
 
-Start with preset: Instant Sauce.
+Start with Instant Sauce.
 
 ### Mini Hint Near Controls
 
-Try this first: Drive 25 to 40, then blend with Mix.
+Try this first: turn Instant Sauce until it feels right, then blend with Mix.
 
 ### Pro Lock Tooltip
 
-Pro Feature: Advanced transient and stereo shaping for cleaner punch and width.
+Pro Feature: Unlock Drive, Texture, Wow Depth, Wow Rate, Tone, and advanced shaping for deeper control.
 
 ### Footer CTA (Free and Pro)
 
@@ -91,7 +107,7 @@ Get a free track review.
 
 Unlock Sauce Box Pro
 
-More presets, oversampling, A/B compare, and pro shaping tools.
+Unlock the full Sauce Box controls, more presets, oversampling, A/B compare, and pro shaping tools.
 
 Low one-time price. Instant unlock.
 
@@ -106,7 +122,7 @@ Low one-time price. Instant unlock.
 
 ## Simple Launch Plan
 
-1. Week 1: Finalize Free controls, limiter, 12 presets, stable UI.
+1. Week 1: Finalize Instant Sauce Free mode, limiter, 12 presets, stable UI.
 2. Week 2: Add Pro locks, checkout/unlock flow, track-review CTA landing page.
 3. Week 3: Private beta with 10 to 20 producers, tune presets and copy.
 4. Week 4: Public free launch + low-price Pro.
