@@ -33,6 +33,11 @@ private:
     juce::Slider mixSlider;
     juce::Slider outputSlider;
 
+    // Instant Sauce macro (Free tier)
+    juce::Slider instantSauceSlider;
+    juce::Label  instantSauceLabelKnob;
+
+    // Pro-tier detailed controls (shown locked in Free)
     juce::Label driveKnobLabel;
     juce::Label textureKnobLabel;
     juce::Label wowDepthKnobLabel;
@@ -41,9 +46,12 @@ private:
     juce::Label mixKnobLabel;
     juce::Label outputKnobLabel;
 
+    juce::Rectangle<int> proRowBounds_;
+
     std::vector<std::unique_ptr<SliderAttachment>> attachments;
 
     void setupKnob (juce::Slider& slider, juce::Label& label, const juce::String& labelText);
+    void applyInstantSauceMacro (float value);
     void refreshPresetDropdownFromParams();
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
 

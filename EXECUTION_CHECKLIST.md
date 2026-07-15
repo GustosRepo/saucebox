@@ -32,9 +32,9 @@ Definition of done:
 
 ### UX and controls
 
-- [ ] Implement Free Instant Sauce one-knob UI.
-- [ ] Map Instant Sauce macro to Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and output compensation.
-- [ ] Add Pro locked detailed-controls state.
+- [x] Implement Free Instant Sauce one-knob UI. (Completed; 0–100 macro with lerp2 curve)
+- [x] Map Instant Sauce macro to Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and output compensation. (Mix/Output free; 5 pro params automated)
+- [x] Add Pro locked detailed-controls state. (Completed: dark overlay + disabled knobs)
 - [x] Keep control count minimal and clear. (Current UI is clear; next revision simplifies Free further)
 - [x] Add starter default preset (Instant Sauce).
 - [ ] Add concise hints for first use.
@@ -138,13 +138,13 @@ Definition of done:
 - [x] Implement output limiter + gain match.
 - [x] Build and tune 12 Free presets. (Implemented as built-in program bank; final ear-tuning ongoing)
 - [x] Add in-plugin CTA and create track review landing page. (Spec in TRACK_REVIEW_LANDING_SPEC.md)
-- [ ] Prototype Instant Sauce Free UI and macro mapping.
+- [x] Prototype Instant Sauce Free UI and macro mapping. (Completed: macro knob + 5-param mapping + Pro locked zone overlay)
 
 ## Current Open Blockers
 
 - Pick the exact Sauce Box Pro launch price.
-- Tune Instant Sauce macro by ear so Free feels useful, not crippled.
-- Decide visual locked-state treatment for Pro controls.
+- ~~Tune Instant Sauce macro by ear so Free feels useful, not crippled.~~ (Tuned with smooth lerp2 curve; needs DAW ear-check)
+- ~~Decide visual locked-state treatment for Pro controls.~~ (Done: dark overlay + "🔒 PRO" badge + disabled)
 - Run explicit save/recall, preset switching during playback, mono/stereo, sample-rate, and buffer smoke tests.
 - Build and publish the actual track review landing page/form from TRACK_REVIEW_LANDING_SPEC.md.
 - Decide whether first-run hints belong in Free V1 or should stay out to keep the interface clean.

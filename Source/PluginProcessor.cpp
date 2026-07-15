@@ -10,6 +10,7 @@ constexpr auto paramWowRate = "wowRate";
 constexpr auto paramTone = "tone";
 constexpr auto paramMix = "mix";
 constexpr auto paramOutput = "output";
+constexpr auto paramInstantSauce = "instantSauce";
 constexpr auto stateProgramIndex = "programIndex";
 
 constexpr std::array<SauceBoxAudioProcessor::Preset, 12> presets {{
@@ -354,6 +355,10 @@ SauceBoxAudioProcessor::APVTS::ParameterLayout SauceBoxAudioProcessor::createPar
 
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { paramOutput, 1 }, "Output", juce::NormalisableRange<float> (-18.0f, 12.0f, 0.1f), -1.5f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramInstantSauce, 1 }, "Instant Sauce",
+        juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 50.0f));
 
     return { params.begin(), params.end() };
 }
