@@ -24,7 +24,7 @@ juce_add_plugin(SauceBox
   PLUGIN_MANUFACTURER_CODE SaBx
   PLUGIN_CODE SBox
   FORMATS AU VST3 Standalone
-  PRODUCT_NAME "Sauce Box"
+  PRODUCT_NAME "Hot Packet"
 )
 
 target_sources(SauceBox

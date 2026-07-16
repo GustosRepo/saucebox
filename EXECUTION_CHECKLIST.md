@@ -1,4 +1,4 @@
-# Sauce Box Execution Checklist (Based on PRODUCT_REQUIREMENTS)
+# Hot Packet Execution Checklist (Based on PRODUCT_REQUIREMENTS)
 
 ## How to use this
 
@@ -38,8 +38,8 @@ Definition of done:
 - [x] Keep control count minimal and clear. (Current UI is clear; next revision simplifies Free further)
 - [x] Add starter default preset (Instant Sauce).
 - [ ] Add concise hints for first use.
-- [x] Ensure readable UI at common plugin sizes. (Fixed-size 640x420 UI checked in current build)
-- [x] Add "by 808Bytes" directly beneath Sauce Box title.
+- [x] Ensure readable UI at common plugin sizes. (Fixed-size 720x560 UI checked in current build)
+- [x] Add 808Bytes branding directly beneath Hot Packet title.
 
 ### Presets
 
@@ -142,7 +142,7 @@ Definition of done:
 
 ## Current Open Blockers
 
-- Pick the exact Sauce Box Pro launch price.
+- Pick the exact Hot Packet Pro launch price.
 - ~~Tune Instant Sauce macro by ear so Free feels useful, not crippled.~~ (Tuned with smooth lerp2 curve; needs DAW ear-check)
 - ~~Decide visual locked-state treatment for Pro controls.~~ (Done: dark overlay + "🔒 PRO" badge + disabled)
 - Run explicit save/recall, preset switching during playback, mono/stereo, sample-rate, and buffer smoke tests.

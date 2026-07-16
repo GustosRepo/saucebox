@@ -16,7 +16,27 @@ public:
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 
+    class PacketLookAndFeel : public juce::LookAndFeel_V4
+    {
+    public:
+        PacketLookAndFeel();
+
+        void drawRotarySlider (juce::Graphics&, int x, int y, int width, int height,
+                               float sliderPosProportional, float rotaryStartAngle,
+                               float rotaryEndAngle, juce::Slider&) override;
+        void drawComboBox (juce::Graphics&, int width, int height, bool isButtonDown,
+                           int buttonX, int buttonY, int buttonW, int buttonH,
+                           juce::ComboBox&) override;
+        void positionComboBoxText (juce::ComboBox&, juce::Label&) override;
+        void drawButtonBackground (juce::Graphics&, juce::Button&, const juce::Colour& backgroundColour,
+                                   bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+        void drawButtonText (juce::Graphics&, juce::TextButton&,
+                             bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override;
+    };
+
     SauceBoxAudioProcessor& processorRef;
+    PacketLookAndFeel packetLookAndFeel;
+    juce::TooltipWindow tooltipWindow;
 
     juce::Label titleLabel;
     juce::Label bylineLabel;
@@ -47,11 +67,13 @@ private:
     juce::Label outputKnobLabel;
 
     juce::Rectangle<int> proRowBounds_;
+    bool isUpdatingInstantSauceFromPreset_ = false;
 
     std::vector<std::unique_ptr<SliderAttachment>> attachments;
 
     void setupKnob (juce::Slider& slider, juce::Label& label, const juce::String& labelText);
     void applyInstantSauceMacro (float value);
+    void syncInstantSauceSliderFromPreset (int presetIndex);
     void refreshPresetDropdownFromParams();
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
 

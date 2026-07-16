@@ -1,6 +1,8 @@
-# Sauce Box by 808Bytes - Simple Texturizer (VST3/AU)
+# Hot Packet by 808Bytes - Simple Texturizer (VST3/AU)
 
-Sauce Box is a JUCE texture plugin built around an Instant Sauce Free mode and a deeper Pro control set.
+Hot Packet is a JUCE texture plugin built around an Instant Sauce Free mode and a deeper Pro control set.
+
+Marketing line: Instant sauce for dull sounds.
 
 Free mode should feel immediate:
 
@@ -18,7 +20,8 @@ Pro unlocks the full box:
 
 The larger 808Bytes product ecosystem can grow around the Sauce family:
 
-- Sauce Box: the main texture plugin
+- Sauce Box: the parent ecosystem and future bundle
+- Hot Packet: the main texture plugin
 - Sauce Packs: preset expansion packs
 - Instant Sauce: the Free one-knob mode
 - Secret Sauce: more aggressive or unusual presets
@@ -42,9 +45,9 @@ cmake --build build --config Release
 
 After build, look under `build` products for:
 
-- `Sauce Box.vst3`
-- `Sauce Box.component` (AU)
-- `Sauce Box.app` (Standalone)
+- `Hot Packet.vst3`
+- `Hot Packet.component` (AU)
+- `Hot Packet.app` (Standalone)
 
 ## Notes
 

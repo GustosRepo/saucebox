@@ -1,4 +1,4 @@
-# Sauce Box DAW Smoke Test Plan (V1)
+# Hot Packet DAW Smoke Test Plan (V1)
 
 ## Goal
 
@@ -44,7 +44,7 @@ If FL Studio is the only available DAW, use this release gate instead:
 ### Case 1 - Insert and Basic Audio
 
 Steps:
-1. Insert Sauce Box on a vocal track.
+1. Insert Hot Packet on a vocal track.
 2. Start playback.
 3. In Free mode, move Instant Sauce, Mix, and Output.
 4. In Pro/unlocked mode, move Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, and Output.
@@ -82,7 +82,7 @@ Expected:
 ### Case 4 - Insert vs Bus
 
 Steps:
-1. Use Sauce Box as track insert.
+1. Use Hot Packet as track insert.
 2. Move same instance settings to a bus/aux workflow.
 3. Compare behavior and output control.
 

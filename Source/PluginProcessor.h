@@ -2,7 +2,9 @@
 
 #include <JuceHeader.h>
 
-class SauceBoxAudioProcessor : public juce::AudioProcessor, public juce::ChangeBroadcaster
+class SauceBoxAudioProcessor : public juce::AudioProcessor,
+                               public juce::ChangeBroadcaster,
+                               private juce::VST3ClientExtensions
 {
 public:
     SauceBoxAudioProcessor();
@@ -32,12 +34,16 @@ public:
 
     int getPresetCount() const;
     juce::String getPresetName (int index) const;
+    float getPresetInstantSauceValueForUi (int index) const;
     int getCurrentProgramForUi() const;
     int getPresetIndexFromCurrentParamsForUi() const;
     void setCurrentProgramForUi (int index);
 
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
+    juce::VST3ClientExtensions* getVST3ClientExtensions() override;
+    std::vector<juce::String> getCompatibleClasses() const override;
 
     using APVTS = juce::AudioProcessorValueTreeState;
     APVTS apvts;
@@ -52,6 +58,7 @@ public:
         float tone = 0.58f;
         float mix = 0.62f;
         float output = -1.5f;
+        float instantSauce = 50.0f;
     };
 
     static APVTS::ParameterLayout createParameterLayout();

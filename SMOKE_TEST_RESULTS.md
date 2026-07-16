@@ -1,4 +1,4 @@
-# Sauce Box Smoke Test Results
+# Hot Packet Smoke Test Results
 
 ## 2026-07-11 - FL Studio (macOS)
 

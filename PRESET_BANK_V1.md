@@ -1,6 +1,6 @@
-# Sauce Box Preset Bank V1 (Draft)
+# Hot Packet Preset Bank V1 (Draft)
 
-These are launch presets for Sauce Box Free. Values are starting points for tuning by ear.
+These are launch presets for Hot Packet Free. Values are starting points for tuning by ear.
 
 ## Parameter Key
 
@@ -14,7 +14,8 @@ These are launch presets for Sauce Box Free. Values are starting points for tuni
 
 ## Ecosystem Direction
 
-- Sauce Box: the main texture plugin.
+- Sauce Box: the parent ecosystem and future bundle.
+- Hot Packet: the main texture plugin.
 - Sauce Packs: preset expansion packs.
 - Instant Sauce: the Free one-knob mode and starter preset.
 - Secret Sauce: more aggressive or unusual presets.

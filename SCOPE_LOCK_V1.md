@@ -1,4 +1,4 @@
-# Sauce Box V1 Scope Lock
+# Hot Packet V1 Scope Lock
 
 ## Status
 

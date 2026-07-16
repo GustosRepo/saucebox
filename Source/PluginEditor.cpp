@@ -11,37 +11,272 @@ constexpr auto paramMix = "mix";
 constexpr auto paramOutput = "output";
 constexpr auto paramInstantSauce = "instantSauce";
 constexpr auto trackReviewUrl = "https://saucebox.audio/review";
+
+const auto packetRed = juce::Colour::fromRGB (223, 47, 34);
+const auto packetOrange = juce::Colour::fromRGB (255, 137, 38);
+const auto packetYellow = juce::Colour::fromRGB (255, 201, 71);
+const auto packetCream = juce::Colour::fromRGB (255, 246, 218);
+const auto packetInk = juce::Colour::fromRGB (38, 21, 24);
+const auto packetPurple = juce::Colour::fromRGB (91, 42, 120);
+
+juce::Path createPacketPath (juce::Rectangle<float> r)
+{
+    juce::Path path;
+    const auto corner = 28.0f;
+
+    path.startNewSubPath (r.getX() + corner, r.getY());
+    path.lineTo (r.getRight() - corner, r.getY());
+    path.quadraticTo (r.getRight(), r.getY(), r.getRight(), r.getY() + corner);
+    path.lineTo (r.getRight(), r.getBottom() - corner);
+    path.quadraticTo (r.getRight(), r.getBottom(), r.getRight() - corner, r.getBottom());
+    path.lineTo (r.getX() + corner, r.getBottom());
+    path.quadraticTo (r.getX(), r.getBottom(), r.getX(), r.getBottom() - corner);
+    path.lineTo (r.getX(), r.getY() + corner);
+    path.quadraticTo (r.getX(), r.getY(), r.getX() + corner, r.getY());
+    path.closeSubPath();
+
+    return path;
+}
+
+void drawCrimpMarks (juce::Graphics& g, juce::Rectangle<float> bounds)
+{
+    for (float x = bounds.getX() + 12.0f; x < bounds.getRight() - 10.0f; x += 18.0f)
+        g.drawLine (x, bounds.getY() + 5.0f, x + 8.0f, bounds.getBottom() - 5.0f, 1.7f);
+}
+
+void drawSideSealMarks (juce::Graphics& g, juce::Rectangle<float> packetBounds)
+{
+    for (float y = packetBounds.getY() + 54.0f; y < packetBounds.getBottom() - 54.0f; y += 18.0f)
+    {
+        g.drawLine (packetBounds.getX() + 4.0f, y, packetBounds.getX() + 24.0f, y + 7.0f, 1.4f);
+        g.drawLine (packetBounds.getRight() - 4.0f, y, packetBounds.getRight() - 24.0f, y + 7.0f, 1.4f);
+    }
+}
+
+void drawPacketCopy (juce::Graphics& g, juce::Rectangle<float> packetBounds)
+{
+    g.setColour (packetCream.withAlpha (0.88f));
+    g.setFont (juce::FontOptions (25.0f, juce::Font::bold));
+    g.drawText ("HOT", juce::Rectangle<float> (packetBounds.getX() + 92.0f,
+                                               packetBounds.getY() + 76.0f,
+                                               74.0f, 30.0f).toNearestInt(),
+                juce::Justification::centred);
+
+    g.setColour (packetCream.withAlpha (0.18f));
+    g.setFont (juce::FontOptions (72.0f, juce::Font::bold));
+    g.drawText ("FIRE", juce::Rectangle<float> (packetBounds.getRight() - 214.0f,
+                                                packetBounds.getY() + 118.0f,
+                                                170.0f, 78.0f).toNearestInt(),
+                juce::Justification::centred);
+
+    auto note = juce::Rectangle<float> (packetBounds.getRight() - 198.0f,
+                                        packetBounds.getY() + 206.0f,
+                                        126.0f, 54.0f);
+
+    g.saveState();
+    g.addTransform (juce::AffineTransform::rotation (-0.055f, note.getCentreX(), note.getCentreY()));
+
+    juce::Path tail;
+    tail.startNewSubPath (note.getX() + 30.0f, note.getBottom() - 2.0f);
+    tail.lineTo (note.getX() + 43.0f, note.getBottom() + 10.0f);
+    tail.lineTo (note.getX() + 54.0f, note.getBottom() - 2.0f);
+    tail.closeSubPath();
+
+    g.setColour (packetCream.withAlpha (0.76f));
+    g.fillRoundedRectangle (note, 12.0f);
+    g.fillPath (tail);
+
+    g.setColour (packetInk.withAlpha (0.38f));
+    g.drawRoundedRectangle (note, 12.0f, 1.0f);
+    g.strokePath (tail, juce::PathStrokeType (1.0f));
+
+    g.setColour (packetInk.withAlpha (0.82f));
+    g.setFont (juce::FontOptions (13.0f, juce::Font::bold));
+    g.drawFittedText ("i got\nthe sauce", note.toNearestInt().reduced (10, 7),
+                      juce::Justification::centred, 2);
+    g.restoreState();
+
+}
+}
+
+SauceBoxAudioProcessorEditor::PacketLookAndFeel::PacketLookAndFeel()
+{
+    setColour (juce::Slider::rotarySliderFillColourId, packetYellow);
+    setColour (juce::Slider::rotarySliderOutlineColourId, packetInk.withAlpha (0.42f));
+    setColour (juce::Slider::thumbColourId, packetCream);
+    setColour (juce::Slider::textBoxTextColourId, packetCream);
+    setColour (juce::Slider::textBoxBackgroundColourId, packetInk.withAlpha (0.72f));
+    setColour (juce::Slider::textBoxOutlineColourId, packetCream.withAlpha (0.7f));
+
+    setColour (juce::ComboBox::backgroundColourId, packetCream);
+    setColour (juce::ComboBox::textColourId, packetInk);
+    setColour (juce::ComboBox::outlineColourId, packetInk);
+    setColour (juce::ComboBox::arrowColourId, packetRed);
+    setColour (juce::PopupMenu::backgroundColourId, packetCream);
+    setColour (juce::PopupMenu::textColourId, packetInk);
+}
+
+void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawRotarySlider (juce::Graphics& g,
+                                                                        int x,
+                                                                        int y,
+                                                                        int width,
+                                                                        int height,
+                                                                        float sliderPosProportional,
+                                                                        float rotaryStartAngle,
+                                                                        float rotaryEndAngle,
+                                                                        juce::Slider& slider)
+{
+    const auto enabledAlpha = slider.isEnabled() ? 1.0f : 0.36f;
+    const auto bounds = juce::Rectangle<float> (static_cast<float> (x), static_cast<float> (y),
+                                               static_cast<float> (width), static_cast<float> (height))
+                            .reduced (7.0f);
+    const auto diameter = juce::jmin (bounds.getWidth(), bounds.getHeight());
+    const auto knobBounds = bounds.withSizeKeepingCentre (diameter, diameter);
+    const auto centre = knobBounds.getCentre();
+    const auto radius = diameter * 0.43f;
+    const auto arcRadius = radius * 0.88f;
+    const auto angle = rotaryStartAngle + sliderPosProportional * (rotaryEndAngle - rotaryStartAngle);
+
+    g.setColour (packetInk.withAlpha (0.28f * enabledAlpha));
+    g.fillEllipse (knobBounds.translated (0.0f, 4.0f));
+
+    g.setColour (packetCream.withAlpha (0.92f * enabledAlpha));
+    g.fillEllipse (knobBounds.reduced (2.0f));
+
+    g.setColour (packetRed.withAlpha (0.92f * enabledAlpha));
+    g.fillEllipse (knobBounds.reduced (9.0f));
+
+    g.setColour (packetInk.withAlpha (0.78f * enabledAlpha));
+    g.drawEllipse (knobBounds.reduced (2.0f), 2.0f);
+
+    juce::Path track;
+    track.addCentredArc (centre.x, centre.y, arcRadius, arcRadius, 0.0f,
+                         rotaryStartAngle, rotaryEndAngle, true);
+    g.setColour (packetInk.withAlpha (0.42f * enabledAlpha));
+    g.strokePath (track, juce::PathStrokeType (4.5f, juce::PathStrokeType::curved,
+                                               juce::PathStrokeType::rounded));
+
+    juce::Path valueTrack;
+    valueTrack.addCentredArc (centre.x, centre.y, arcRadius, arcRadius, 0.0f,
+                              rotaryStartAngle, angle, true);
+    g.setColour (packetYellow.withAlpha (0.98f * enabledAlpha));
+    g.strokePath (valueTrack, juce::PathStrokeType (7.0f, juce::PathStrokeType::curved,
+                                                    juce::PathStrokeType::rounded));
+
+    const auto pointerLength = radius * 0.66f;
+    const auto pointerThickness = juce::jmax (3.0f, diameter * 0.06f);
+    juce::Path pointer;
+    pointer.addRoundedRectangle (-pointerThickness * 0.5f, -pointerLength,
+                                 pointerThickness, pointerLength, pointerThickness * 0.5f);
+    pointer.applyTransform (juce::AffineTransform::rotation (angle).translated (centre.x, centre.y));
+
+    g.setColour (packetCream.withAlpha (0.96f * enabledAlpha));
+    g.fillPath (pointer);
+}
+
+void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawComboBox (juce::Graphics& g,
+                                                                    int width,
+                                                                    int height,
+                                                                    bool isButtonDown,
+                                                                    int,
+                                                                    int,
+                                                                    int,
+                                                                    int,
+                                                                    juce::ComboBox&)
+{
+    auto bounds = juce::Rectangle<float> (0.5f, 0.5f,
+                                          static_cast<float> (width) - 1.0f,
+                                          static_cast<float> (height) - 1.0f);
+
+    g.setColour ((isButtonDown ? packetYellow : packetCream).withAlpha (0.98f));
+    g.fillRoundedRectangle (bounds, 9.0f);
+
+    g.setColour (packetInk);
+    g.drawRoundedRectangle (bounds, 9.0f, 2.0f);
+
+    const auto arrowBounds = bounds.removeFromRight (34.0f).reduced (9.0f, 10.0f);
+    juce::Path arrow;
+    arrow.startNewSubPath (arrowBounds.getX(), arrowBounds.getY());
+    arrow.lineTo (arrowBounds.getCentreX(), arrowBounds.getBottom());
+    arrow.lineTo (arrowBounds.getRight(), arrowBounds.getY());
+
+    g.setColour (packetRed);
+    g.strokePath (arrow, juce::PathStrokeType (3.0f, juce::PathStrokeType::curved,
+                                               juce::PathStrokeType::rounded));
+}
+
+void SauceBoxAudioProcessorEditor::PacketLookAndFeel::positionComboBoxText (juce::ComboBox& box,
+                                                                           juce::Label& label)
+{
+    label.setBounds (8, 1, box.getWidth() - 40, box.getHeight() - 2);
+    label.setFont (juce::FontOptions (18.0f, juce::Font::bold));
+    label.setJustificationType (juce::Justification::centredLeft);
+}
+
+void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonBackground (juce::Graphics& g,
+                                                                           juce::Button& button,
+                                                                           const juce::Colour&,
+                                                                           bool isHighlighted,
+                                                                           bool isDown)
+{
+    auto bounds = button.getLocalBounds().toFloat().reduced (0.5f);
+    const auto fill = isDown ? packetYellow : (isHighlighted ? packetOrange.brighter (0.08f) : packetOrange);
+
+    g.setColour (packetInk.withAlpha (0.32f));
+    g.fillRoundedRectangle (bounds.translated (0.0f, 3.0f), 8.0f);
+
+    g.setColour (fill);
+    g.fillRoundedRectangle (bounds, 8.0f);
+
+    g.setColour (packetCream);
+    g.drawRoundedRectangle (bounds.reduced (2.0f), 6.0f, 1.1f);
+
+    g.setColour (packetInk);
+    g.drawRoundedRectangle (bounds, 8.0f, 1.6f);
+}
+
+void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonText (juce::Graphics& g,
+                                                                      juce::TextButton& button,
+                                                                      bool,
+                                                                      bool)
+{
+    g.setColour (packetInk);
+    g.setFont (juce::FontOptions (15.0f, juce::Font::bold));
+    g.drawFittedText (button.getButtonText(), button.getLocalBounds().reduced (8, 2),
+                      juce::Justification::centred, 1);
 }
 
 SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcessor& p)
-    : AudioProcessorEditor (&p), processorRef (p)
+    : AudioProcessorEditor (&p), processorRef (p), tooltipWindow (this, 700)
 {
-    setSize (640, 480);
+    setSize (720, 560);
+    setLookAndFeel (&packetLookAndFeel);
     processorRef.addChangeListener (this);
 
     // ---- Header ----
-    titleLabel.setText ("SAUCE BOX", juce::dontSendNotification);
+    titleLabel.setText ("HOT PACKET", juce::dontSendNotification);
     titleLabel.setJustificationType (juce::Justification::centred);
-    titleLabel.setFont (juce::FontOptions (48.0f, juce::Font::bold));
-    titleLabel.setColour (juce::Label::textColourId, juce::Colours::white);
+    titleLabel.setFont (juce::FontOptions (54.0f, juce::Font::bold));
+    titleLabel.setColour (juce::Label::textColourId, packetCream);
     addAndMakeVisible (titleLabel);
 
-    bylineLabel.setText ("FIRE", juce::dontSendNotification);
+    bylineLabel.setText ("808BYTES ORIGINAL SAUCE", juce::dontSendNotification);
     bylineLabel.setJustificationType (juce::Justification::centred);
-    bylineLabel.setColour (juce::Label::textColourId, juce::Colour::fromRGB (255, 140, 0));
-    bylineLabel.setFont (juce::FontOptions (24.0f, juce::Font::bold));
+    bylineLabel.setColour (juce::Label::textColourId, packetYellow);
+    bylineLabel.setFont (juce::FontOptions (16.0f, juce::Font::bold));
     addAndMakeVisible (bylineLabel);
 
     // ---- Preset row ----
     presetLabel.setText ("Preset", juce::dontSendNotification);
     presetLabel.setJustificationType (juce::Justification::centredLeft);
-    presetLabel.setColour (juce::Label::textColourId, juce::Colours::white);
-    presetLabel.setFont (juce::FontOptions (14.0f, juce::Font::bold));
+    presetLabel.setColour (juce::Label::textColourId, packetCream);
+    presetLabel.setFont (juce::FontOptions (15.0f, juce::Font::bold));
     addAndMakeVisible (presetLabel);
 
     presetBox.addItem ("Custom", 1);
     for (int i = 0; i < processorRef.getPresetCount(); ++i)
         presetBox.addItem (processorRef.getPresetName (i), i + 2);
+    presetBox.setTooltip ("Choose a factory preset.");
 
     presetBox.onChange = [this]
     {
@@ -54,16 +289,17 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     addAndMakeVisible (presetBox);
 
     // ---- Footer CTA ----
-    ctaLabel.setText ("Get Your Track Pro-Ready", juce::dontSendNotification);
+    ctaLabel.setText ("Need your track release-ready?", juce::dontSendNotification);
     ctaLabel.setJustificationType (juce::Justification::centredRight);
-    ctaLabel.setColour (juce::Label::textColourId, juce::Colours::white);
-    ctaLabel.setFont (juce::FontOptions (13.0f, juce::Font::bold));
+    ctaLabel.setColour (juce::Label::textColourId, packetCream);
+    ctaLabel.setFont (juce::FontOptions (14.0f, juce::Font::bold));
     addAndMakeVisible (ctaLabel);
 
-    ctaButton.setButtonText ("Free Review");
-    ctaButton.setColour (juce::TextButton::buttonColourId, juce::Colour::fromRGB (255, 140, 0));
-    ctaButton.setColour (juce::TextButton::buttonOnColourId, juce::Colour::fromRGB (255, 160, 30));
-    ctaButton.setColour (juce::TextButton::textColourOffId, juce::Colour::fromRGB (40, 20, 10));
+    ctaButton.setButtonText ("Free Track Review");
+    ctaButton.setColour (juce::TextButton::buttonColourId, packetOrange);
+    ctaButton.setColour (juce::TextButton::buttonOnColourId, packetYellow);
+    ctaButton.setColour (juce::TextButton::textColourOffId, packetInk);
+    ctaButton.setTooltip ("Open the 808Bytes track review page.");
     ctaButton.onClick = [] { juce::URL (trackReviewUrl).launchInDefaultBrowser(); };
     addAndMakeVisible (ctaButton);
 
@@ -71,10 +307,19 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     instantSauceSlider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
     instantSauceSlider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 80, 22);
     instantSauceSlider.setName ("Instant Sauce");
-    instantSauceLabelKnob.setText ("HEAT LEVEL", juce::dontSendNotification);
+    instantSauceSlider.setTooltip ("Controls the overall intensity of the effect.");
+    instantSauceSlider.textFromValueFunction = [] (double value)
+    {
+        return juce::String (static_cast<int> (std::round (value))) + "%";
+    };
+    instantSauceSlider.valueFromTextFunction = [] (const juce::String& text)
+    {
+        return text.retainCharacters ("0123456789.-").getDoubleValue();
+    };
+    instantSauceLabelKnob.setText ("Instant Sauce", juce::dontSendNotification);
     instantSauceLabelKnob.setJustificationType (juce::Justification::centred);
-    instantSauceLabelKnob.setColour (juce::Label::textColourId, juce::Colours::white);
-    instantSauceLabelKnob.setFont (juce::FontOptions (18.0f, juce::Font::bold));
+    instantSauceLabelKnob.setColour (juce::Label::textColourId, packetCream);
+    instantSauceLabelKnob.setFont (juce::FontOptions (19.0f, juce::Font::bold));
     addAndMakeVisible (instantSauceSlider);
     addAndMakeVisible (instantSauceLabelKnob);
 
@@ -82,6 +327,9 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
 
     instantSauceSlider.onValueChange = [this]
     {
+        if (isUpdatingInstantSauceFromPreset_)
+            return;
+
         applyInstantSauceMacro (static_cast<float> (instantSauceSlider.getValue()));
         refreshPresetDropdownFromParams();
     };
@@ -89,6 +337,26 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     // ---- Free controls: Mix + Output ----
     setupKnob (mixSlider, mixKnobLabel, "Mix");
     setupKnob (outputSlider, outputKnobLabel, "Output");
+
+    mixSlider.setTooltip ("Blends the processed signal with the dry signal.");
+    mixSlider.textFromValueFunction = [] (double value)
+    {
+        return juce::String (static_cast<int> (std::round (value * 100.0))) + "%";
+    };
+    mixSlider.valueFromTextFunction = [] (const juce::String& text)
+    {
+        return juce::jlimit (0.0, 1.0, text.retainCharacters ("0123456789.-").getDoubleValue() / 100.0);
+    };
+
+    outputSlider.setTooltip ("Adjusts the final output level.");
+    outputSlider.textFromValueFunction = [] (double value)
+    {
+        return juce::String (value, 1) + " dB";
+    };
+    outputSlider.valueFromTextFunction = [] (const juce::String& text)
+    {
+        return text.retainCharacters ("0123456789.-").getDoubleValue();
+    };
 
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramMix, mixSlider));
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramOutput, outputSlider));
@@ -103,6 +371,15 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     setupKnob (wowRateSlider, wowRateKnobLabel, "Wow Rate");
     setupKnob (toneSlider, toneKnobLabel, "Tone");
 
+    driveSlider.setTooltip ("Adds saturation and harmonic intensity. Available in Pro.");
+    crushSlider.setTooltip ("Adds crushed, degraded texture. Available in Pro.");
+    wowDepthSlider.setTooltip ("Controls pitch modulation depth. Available in Pro.");
+    wowRateSlider.setTooltip ("Controls pitch modulation speed. Available in Pro.");
+    toneSlider.setTooltip ("Adjusts the brightness of the processed sound. Available in Pro.");
+
+    for (auto* slider : { &driveSlider, &crushSlider, &wowDepthSlider, &wowRateSlider, &toneSlider })
+        slider->setTextBoxStyle (juce::Slider::NoTextBox, false, 0, 0);
+
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramDrive, driveSlider));
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramCrush, crushSlider));
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramWowDepth, wowDepthSlider));
@@ -114,15 +391,16 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
                         static_cast<juce::Component*> (&crushSlider),
                         static_cast<juce::Component*> (&wowDepthSlider),
                         static_cast<juce::Component*> (&wowRateSlider),
-                        static_cast<juce::Component*> (&toneSlider),
-                        static_cast<juce::Component*> (&driveKnobLabel),
-                        static_cast<juce::Component*> (&textureKnobLabel),
-                        static_cast<juce::Component*> (&wowDepthKnobLabel),
-                        static_cast<juce::Component*> (&wowRateKnobLabel),
-                        static_cast<juce::Component*> (&toneKnobLabel) })
+                        static_cast<juce::Component*> (&toneSlider) })
     {
         comp->setEnabled (false);
         comp->setInterceptsMouseClicks (false, false);
+    }
+
+    for (auto* label : { &driveKnobLabel, &textureKnobLabel, &wowDepthKnobLabel, &wowRateKnobLabel, &toneKnobLabel })
+    {
+        label->setAlpha (0.78f);
+        label->setInterceptsMouseClicks (false, false);
     }
 
     refreshPresetDropdownFromParams();
@@ -130,6 +408,7 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
 
 SauceBoxAudioProcessorEditor::~SauceBoxAudioProcessorEditor()
 {
+    setLookAndFeel (nullptr);
     processorRef.removeChangeListener (this);
 }
 
@@ -148,115 +427,161 @@ void SauceBoxAudioProcessorEditor::refreshPresetDropdownFromParams()
 
     if (presetBox.getSelectedItemIndex() != uiIndex)
         presetBox.setSelectedItemIndex (uiIndex, juce::dontSendNotification);
+
+    if (programIndex >= 0)
+        syncInstantSauceSliderFromPreset (programIndex);
 }
 
 void SauceBoxAudioProcessorEditor::paint (juce::Graphics& g)
 {
-    // Fire sauce packet: vibrant red/dark red gradient
-    const auto fireRed = juce::Colour::fromRGB (220, 20, 60);       // Crimson
-    const auto darkRed = juce::Colour::fromRGB (139, 0, 0);         // Dark red
-    const auto charcoal = juce::Colour::fromRGB (30, 25, 20);       // Dark packet bottom
-    const auto accentOrange = juce::Colour::fromRGB (255, 140, 0);  // Orange trim
+    g.fillAll (packetInk);
 
-    // Main packet gradient: Fire red top → dark red bottom
-    juce::ColourGradient grad (fireRed, 0.0f, 0.0f,
-                               darkRed, 0.0f, static_cast<float> (getHeight()), false);
-    g.setGradientFill (grad);
-    g.fillRoundedRectangle (getLocalBounds().toFloat().reduced (8.0f), 12.0f);
+    auto packetBounds = getLocalBounds().toFloat().reduced (12.0f);
+    auto packetPath = createPacketPath (packetBounds);
 
-    // Packet border: thin orange line
-    g.setColour (accentOrange.withAlpha (0.8f));
-    g.drawRoundedRectangle (getLocalBounds().toFloat().reduced (8.0f), 12.0f, 2.5f);
+    juce::ColourGradient packetGradient (packetOrange, packetBounds.getX(), packetBounds.getY(),
+                                         packetRed.darker (0.25f), packetBounds.getRight(),
+                                         packetBounds.getBottom(), false);
+    packetGradient.addColour (0.48, packetRed);
 
-    // Tear-here line (horizontal line 1/3 down)
-    const auto teary = static_cast<float> (getHeight()) / 4.5f;
-    g.setColour (charcoal.withAlpha (0.6f));
-    g.drawLine (20.0f, teary, static_cast<float> (getWidth()) - 20.0f, teary, 2.0f);
+    g.setGradientFill (packetGradient);
+    g.fillPath (packetPath);
 
-    // Perforated dashes
-    g.setColour (charcoal.withAlpha (0.4f));
-    for (float x = 40.0f; x < static_cast<float> (getWidth()) - 40.0f; x += 20.0f)
+    g.setColour (packetInk.withAlpha (0.28f));
+    g.strokePath (packetPath, juce::PathStrokeType (9.0f));
+
+    g.setColour (packetCream);
+    g.strokePath (packetPath, juce::PathStrokeType (3.0f));
+
+    const auto innerPacket = packetBounds.reduced (13.0f);
+    g.setColour (packetCream.withAlpha (0.22f));
+    g.drawRoundedRectangle (innerPacket, 19.0f, 1.5f);
+
+    auto topCrimp = packetBounds.removeFromTop (48.0f).reduced (9.0f, 7.0f);
+    auto bottomCrimp = getLocalBounds().toFloat().reduced (21.0f).removeFromBottom (44.0f);
+
+    g.setColour (packetCream.withAlpha (0.28f));
+    g.fillRoundedRectangle (topCrimp, 13.0f);
+    g.fillRoundedRectangle (bottomCrimp, 13.0f);
+
+    g.setColour (packetInk.withAlpha (0.2f));
+    drawCrimpMarks (g, topCrimp);
+    drawCrimpMarks (g, bottomCrimp);
+
+    g.setColour (packetCream.withAlpha (0.24f));
+    drawSideSealMarks (g, getLocalBounds().toFloat().reduced (12.0f));
+
+    const auto tearY = 116.0f;
+    g.setColour (packetCream.withAlpha (0.75f));
+    for (float x = 72.0f; x < static_cast<float> (getWidth()) - 72.0f; x += 22.0f)
     {
-        g.fillRect (x, teary - 0.5f, 8.0f, 1.0f);
+        if ((x > 72.0f && x < 184.0f) || (x > 268.0f && x < 452.0f))
+            continue;
+
+        g.fillRoundedRectangle (x, tearY, 11.0f, 2.0f, 1.0f);
     }
 
-    // Packet fold lines (subtle emboss effect on sides)
-    g.setColour (juce::Colours::white.withAlpha (0.08f));
-    g.drawLine (50.0f, teary + 20.0f, 50.0f, static_cast<float> (getHeight()) - 40.0f, 1.0f);
-    g.drawLine (static_cast<float> (getWidth()) - 50.0f, teary + 20.0f,
-                static_cast<float> (getWidth()) - 50.0f, static_cast<float> (getHeight()) - 40.0f, 1.0f);
+    g.setColour (packetCream.withAlpha (0.64f));
+    g.setFont (juce::FontOptions (8.5f, juce::Font::bold));
+    g.drawText ("TEAR HERE", getWidth() - 132, static_cast<int> (tearY - 12.0f),
+                62, 12, juce::Justification::centred);
 
-    // Pro locked zone overlay (stays red-tinted for packet feel)
+    g.setColour (packetPurple.withAlpha (0.92f));
+    juce::Path stripe;
+    stripe.startNewSubPath (packetBounds.getX() + 28.0f, 92.0f);
+    stripe.lineTo (packetBounds.getX() + 80.0f, 92.0f);
+    stripe.lineTo (packetBounds.getX() + 54.0f, static_cast<float> (getHeight()) - 104.0f);
+    stripe.lineTo (packetBounds.getX() + 2.0f, static_cast<float> (getHeight()) - 104.0f);
+    stripe.closeSubPath();
+    g.fillPath (stripe);
+
+    g.setColour (packetCream.withAlpha (0.16f));
+    g.drawLine (92.0f, 144.0f, 92.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
+    g.drawLine (static_cast<float> (getWidth()) - 82.0f, 144.0f,
+                static_cast<float> (getWidth()) - 82.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
+
+    drawPacketCopy (g, getLocalBounds().toFloat().reduced (12.0f));
+
     if (! proRowBounds_.isEmpty())
     {
-        const auto proRect = proRowBounds_.toFloat().expanded (6.0f, 2.0f);
-        g.setColour (juce::Colour::fromRGBA (30, 10, 10, 180));  // Dark red overlay
+        const auto proRect = proRowBounds_.toFloat().expanded (4.0f, 0.0f);
+        g.setColour (packetInk.withAlpha (0.34f));
         g.fillRoundedRectangle (proRect, 8.0f);
 
-        g.setColour (accentOrange.withAlpha (0.35f));
-        g.drawRoundedRectangle (proRect, 8.0f, 1.0f);
+        g.setColour (packetCream.withAlpha (0.26f));
+        g.drawRoundedRectangle (proRect, 8.0f, 1.4f);
 
-        g.setColour (juce::Colours::white.withAlpha (0.65f));
-        g.setFont (juce::FontOptions (12.0f, juce::Font::bold));
-        g.drawText ("🔒 PRO UNLOCK", proRect.toNearestInt(), juce::Justification::centred);
+        const auto badge = proRect.withSizeKeepingCentre (92.0f, 18.0f)
+                                  .withY (proRect.getY() + 7.0f);
+        g.setColour (packetCream.withAlpha (0.18f));
+        g.fillRoundedRectangle (badge, 7.0f);
+
+        g.setColour (packetCream.withAlpha (0.54f));
+        g.drawRoundedRectangle (badge, 7.0f, 1.0f);
+
+        g.setColour (packetCream.withAlpha (0.9f));
+        g.setFont (juce::FontOptions (10.5f, juce::Font::bold));
+        g.drawText ("UNLOCK PRO", badge.toNearestInt(), juce::Justification::centred);
     }
 }
 
 void SauceBoxAudioProcessorEditor::resized()
 {
-    auto area = getLocalBounds().reduced (24);
+    auto area = getLocalBounds().reduced (34, 28);
 
-    // Header: "SAUCE BOX" + "FIRE" (takes up more space now)
-    auto header = area.removeFromTop (70);
-    titleLabel.setBounds (header.removeFromTop (42));
-    bylineLabel.setBounds (header);
+    auto header = area.removeFromTop (106);
+    titleLabel.setBounds (header.removeFromTop (62));
+    header.removeFromTop (4);
+    bylineLabel.setBounds (header.removeFromTop (22));
 
-    // Preset row
-    auto presetRow = area.removeFromTop (32);
-    presetLabel.setBounds (presetRow.removeFromLeft (54));
-    presetBox.setBounds (presetRow.removeFromLeft (260).reduced (2));
+    area.removeFromTop (4);
 
-    // Footer
-    auto footer = area.removeFromBottom (40);
-    ctaButton.setBounds (footer.removeFromRight (190).reduced (6));
-    ctaLabel.setBounds (footer.reduced (6));
+    auto presetRow = area.removeFromTop (42).reduced (18, 3);
+    presetRow.removeFromLeft (48);
+    presetLabel.setBounds (presetRow.removeFromLeft (66));
+    presetBox.setBounds (presetRow.removeFromLeft (300).reduced (2, 0));
 
-    // Remaining space: macro + free controls + pro row
-    // Macro zone: Instant Sauce big knob, centered (~140px)
-    auto macroZone = area.removeFromTop (150);
+    auto footer = area.removeFromBottom (54).reduced (16, 9);
+    auto ctaButtonSlot = footer.removeFromRight (214);
+    ctaButton.setBounds (ctaButtonSlot.withSizeKeepingCentre (204, 32));
+    ctaLabel.setBounds (footer.reduced (8, 1));
+
+    auto macroZone = area.removeFromTop (136);
     {
-        const int knobW = 200;
+        const int knobW = 204;
         auto knobArea = macroZone.withSizeKeepingCentre (knobW, macroZone.getHeight());
-        instantSauceLabelKnob.setBounds (knobArea.removeFromTop (22));
-        instantSauceSlider.setBounds (knobArea.reduced (6));
+        instantSauceLabelKnob.setBounds (knobArea.removeFromTop (24));
+        instantSauceSlider.setBounds (knobArea.reduced (6, 2));
     }
 
-    // Free controls row: Mix + Output, centered (~100px)
-    auto freeRow = area.removeFromTop (110);
+    auto freeRow = area.removeFromTop (74);
     {
         const int knobW = freeRow.getWidth() / 3;
         auto centredRow = freeRow.withSizeKeepingCentre (knobW * 2, freeRow.getHeight());
 
         const auto placeKnob = [] (juce::Slider& sl, juce::Label& lb, juce::Rectangle<int> cell)
         {
-            lb.setBounds (cell.removeFromTop (20));
-            sl.setBounds (cell.reduced (6));
+            lb.setBounds (cell.removeFromTop (18));
+            sl.setBounds (cell.reduced (8, 0));
         };
 
         placeKnob (mixSlider, mixKnobLabel, centredRow.removeFromLeft (knobW));
         placeKnob (outputSlider, outputKnobLabel, centredRow.removeFromLeft (knobW));
     }
 
-    // Pro locked row: 5 knobs, full width, dimmed
-    auto proRow = area;
-    proRowBounds_ = proRow;
+    area.removeFromTop (4);
+
+    auto proPanel = area.reduced (22, 0);
+    proRowBounds_ = proPanel;
+    auto proRow = proPanel.reduced (12, 7);
+    proRow.removeFromTop (24);
 
     {
         const int knobW = proRow.getWidth() / 5;
         const auto placeKnob = [] (juce::Slider& sl, juce::Label& lb, juce::Rectangle<int> cell)
         {
-            lb.setBounds (cell.removeFromTop (18));
-            sl.setBounds (cell.reduced (6));
+            lb.setBounds (cell.removeFromTop (16));
+            sl.setBounds (cell.reduced (8, 1));
         };
 
         placeKnob (driveSlider,    driveKnobLabel,    proRow.removeFromLeft (knobW));
@@ -300,15 +625,28 @@ void SauceBoxAudioProcessorEditor::applyInstantSauceMacro (float value)
     setParam (paramTone,     tone);
 }
 
+void SauceBoxAudioProcessorEditor::syncInstantSauceSliderFromPreset (int presetIndex)
+{
+    const juce::ScopedValueSetter<bool> scopedSetter (isUpdatingInstantSauceFromPreset_, true);
+    instantSauceSlider.setValue (processorRef.getPresetInstantSauceValueForUi (presetIndex),
+                                 juce::dontSendNotification);
+}
+
 void SauceBoxAudioProcessorEditor::setupKnob (juce::Slider& slider, juce::Label& label, const juce::String& labelText)
 {
     slider.setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
     slider.setTextBoxStyle (juce::Slider::TextBoxBelow, false, 64, 20);
     slider.setName (labelText);
+    slider.setColour (juce::Slider::rotarySliderFillColourId, packetYellow);
+    slider.setColour (juce::Slider::rotarySliderOutlineColourId, packetInk.withAlpha (0.42f));
+    slider.setColour (juce::Slider::thumbColourId, packetCream);
+    slider.setColour (juce::Slider::textBoxTextColourId, packetCream);
+    slider.setColour (juce::Slider::textBoxBackgroundColourId, packetInk.withAlpha (0.72f));
+    slider.setColour (juce::Slider::textBoxOutlineColourId, packetCream.withAlpha (0.7f));
 
     label.setText (labelText, juce::dontSendNotification);
     label.setJustificationType (juce::Justification::centred);
-    label.setColour (juce::Label::textColourId, juce::Colours::white);
+    label.setColour (juce::Label::textColourId, packetCream);
     label.setFont (juce::FontOptions (13.0f, juce::Font::bold));
 
     addAndMakeVisible (slider);

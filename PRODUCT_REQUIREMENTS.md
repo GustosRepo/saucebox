@@ -1,8 +1,8 @@
-# Sauce Box Product Requirements (V1)
+# Hot Packet Product Requirements (V1)
 
 ## North Star
 
-Sauce Box Free should create trust fast, and Sauce Box Pro should increase speed and control.
+Hot Packet Free should create trust fast, and Hot Packet Pro should increase speed and control.
 
 Main business goal: convert plugin users into service clients.
 
@@ -46,13 +46,13 @@ The center knob should feel like a producer-friendly amount control. It should m
 4. Mix remains available so users can blend the effect.
 5. Output remains available so users can level-match.
 
-Pro unlocks the individual controls behind that macro. This makes the upgrade feel like opening the full Sauce Box rather than buying a different sound engine.
+Pro unlocks the individual controls behind that macro. This makes the upgrade feel like opening the full Hot Packet rather than buying a different sound engine.
 
 ## User Flows
 
 ### First Session Flow
 
-1. User inserts Sauce Box.
+1. User inserts Hot Packet.
 2. Plugin opens in Instant Sauce mode.
 3. User turns the center Instant Sauce knob and adjusts Mix if needed.
 4. User hears improvement quickly.
@@ -68,7 +68,7 @@ Pro unlocks the individual controls behind that macro. This makes the upgrade fe
 ### Upgrade Flow
 
 1. User clicks/touches the locked detailed controls area.
-2. Short message explains that Pro unlocks the full Sauce Box controls for deeper tweaking.
+2. Short message explains that Pro unlocks the full Hot Packet controls for deeper tweaking.
 3. User can upgrade in one action.
 4. Unlock applies immediately.
 
@@ -83,7 +83,7 @@ Pro unlocks the individual controls behind that macro. This makes the upgrade fe
 
 ### Welcome Strip
 
-Sauce Box Free
+Hot Packet Free
 
 Fast color and texture for your tracks.
 
@@ -105,9 +105,9 @@ Get a free track review.
 
 ### Upgrade Modal Title/Body
 
-Unlock Sauce Box Pro
+Unlock Hot Packet Pro
 
-Unlock the full Sauce Box controls, more presets, oversampling, A/B compare, and pro shaping tools.
+Unlock the full Hot Packet controls, more presets, oversampling, A/B compare, and pro shaping tools.
 
 Low one-time price. Instant unlock.
 

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Convert Sauce Box users into qualified service leads with a low-friction free review offer.
+Convert Hot Packet users into qualified service leads with a low-friction free review offer.
 
 ## URL
 
@@ -62,7 +62,7 @@ I will listen and send focused feedback (usually within 24 to 48 hours).
 
 If I think I can help further, I will include clear options for next steps.
 
-- Sauce Box
+- 808Bytes Hot Packet
 
 ## Follow-Up Template (Manual)
 
