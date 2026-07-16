@@ -1,23 +1,25 @@
 #include "PluginEditor.h"
+#include "Products/HotPacket/HotPacketManifest.h"
+#include "Products/HotPacket/HotPacketTheme.h"
 
 namespace
 {
-constexpr auto paramDrive = "drive";
-constexpr auto paramCrush = "crush";
-constexpr auto paramWowDepth = "wowDepth";
-constexpr auto paramWowRate = "wowRate";
-constexpr auto paramTone = "tone";
-constexpr auto paramMix = "mix";
-constexpr auto paramOutput = "output";
-constexpr auto paramInstantSauce = "instantSauce";
-constexpr auto trackReviewUrl = "https://saucebox.audio/review";
+constexpr auto paramDrive = hot_packet::parameters::drive;
+constexpr auto paramCrush = hot_packet::parameters::texture;
+constexpr auto paramWowDepth = hot_packet::parameters::wowDepth;
+constexpr auto paramWowRate = hot_packet::parameters::wowRate;
+constexpr auto paramTone = hot_packet::parameters::tone;
+constexpr auto paramMix = hot_packet::parameters::mix;
+constexpr auto paramOutput = hot_packet::parameters::output;
+constexpr auto paramInstantSauce = hot_packet::parameters::instantSauce;
+constexpr auto trackReviewUrl = hot_packet::manifest.trackReviewUrl;
 
-const auto packetRed = juce::Colour::fromRGB (223, 47, 34);
-const auto packetOrange = juce::Colour::fromRGB (255, 137, 38);
-const auto packetYellow = juce::Colour::fromRGB (255, 201, 71);
-const auto packetCream = juce::Colour::fromRGB (255, 246, 218);
-const auto packetInk = juce::Colour::fromRGB (38, 21, 24);
-const auto packetPurple = juce::Colour::fromRGB (91, 42, 120);
+const auto& packetRed = hot_packet::theme::packetRed;
+const auto& packetOrange = hot_packet::theme::packetOrange;
+const auto& packetYellow = hot_packet::theme::packetYellow;
+const auto& packetCream = hot_packet::theme::packetCream;
+const auto& packetInk = hot_packet::theme::packetInk;
+const auto& packetPurple = hot_packet::theme::packetPurple;
 
 juce::Path createPacketPath (juce::Rectangle<float> r)
 {
@@ -57,16 +59,18 @@ void drawPacketCopy (juce::Graphics& g, juce::Rectangle<float> packetBounds)
 {
     g.setColour (packetCream.withAlpha (0.88f));
     g.setFont (juce::FontOptions (25.0f, juce::Font::bold));
-    g.drawText ("HOT", juce::Rectangle<float> (packetBounds.getX() + 92.0f,
-                                               packetBounds.getY() + 76.0f,
-                                               74.0f, 30.0f).toNearestInt(),
+    g.drawText (hot_packet::theme::packetFlavor,
+                juce::Rectangle<float> (packetBounds.getX() + 92.0f,
+                                         packetBounds.getY() + 76.0f,
+                                         74.0f, 30.0f).toNearestInt(),
                 juce::Justification::centred);
 
     g.setColour (packetCream.withAlpha (0.18f));
     g.setFont (juce::FontOptions (72.0f, juce::Font::bold));
-    g.drawText ("FIRE", juce::Rectangle<float> (packetBounds.getRight() - 214.0f,
-                                                packetBounds.getY() + 118.0f,
-                                                170.0f, 78.0f).toNearestInt(),
+    g.drawText (hot_packet::theme::packetBackgroundWord,
+                juce::Rectangle<float> (packetBounds.getRight() - 214.0f,
+                                         packetBounds.getY() + 118.0f,
+                                         170.0f, 78.0f).toNearestInt(),
                 juce::Justification::centred);
 
     auto note = juce::Rectangle<float> (packetBounds.getRight() - 198.0f,
@@ -92,7 +96,7 @@ void drawPacketCopy (juce::Graphics& g, juce::Rectangle<float> packetBounds)
 
     g.setColour (packetInk.withAlpha (0.82f));
     g.setFont (juce::FontOptions (13.0f, juce::Font::bold));
-    g.drawFittedText ("i got\nthe sauce", note.toNearestInt().reduced (10, 7),
+    g.drawFittedText (hot_packet::theme::packetNote, note.toNearestInt().reduced (10, 7),
                       juce::Justification::centred, 2);
     g.restoreState();
 
@@ -254,20 +258,20 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     processorRef.addChangeListener (this);
 
     // ---- Header ----
-    titleLabel.setText ("HOT PACKET", juce::dontSendNotification);
+    titleLabel.setText (hot_packet::manifest.displayTitle, juce::dontSendNotification);
     titleLabel.setJustificationType (juce::Justification::centred);
     titleLabel.setFont (juce::FontOptions (54.0f, juce::Font::bold));
     titleLabel.setColour (juce::Label::textColourId, packetCream);
     addAndMakeVisible (titleLabel);
 
-    bylineLabel.setText ("808BYTES ORIGINAL SAUCE", juce::dontSendNotification);
+    bylineLabel.setText (hot_packet::theme::byline, juce::dontSendNotification);
     bylineLabel.setJustificationType (juce::Justification::centred);
     bylineLabel.setColour (juce::Label::textColourId, packetYellow);
     bylineLabel.setFont (juce::FontOptions (16.0f, juce::Font::bold));
     addAndMakeVisible (bylineLabel);
 
     // ---- Preset row ----
-    presetLabel.setText ("Preset", juce::dontSendNotification);
+    presetLabel.setText (hot_packet::theme::presetLabel, juce::dontSendNotification);
     presetLabel.setJustificationType (juce::Justification::centredLeft);
     presetLabel.setColour (juce::Label::textColourId, packetCream);
     presetLabel.setFont (juce::FontOptions (15.0f, juce::Font::bold));
@@ -289,13 +293,13 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     addAndMakeVisible (presetBox);
 
     // ---- Footer CTA ----
-    ctaLabel.setText ("Need your track release-ready?", juce::dontSendNotification);
+    ctaLabel.setText (hot_packet::theme::ctaLabel, juce::dontSendNotification);
     ctaLabel.setJustificationType (juce::Justification::centredRight);
     ctaLabel.setColour (juce::Label::textColourId, packetCream);
     ctaLabel.setFont (juce::FontOptions (14.0f, juce::Font::bold));
     addAndMakeVisible (ctaLabel);
 
-    ctaButton.setButtonText ("Free Track Review");
+    ctaButton.setButtonText (hot_packet::theme::ctaButtonText);
     ctaButton.setColour (juce::TextButton::buttonColourId, packetOrange);
     ctaButton.setColour (juce::TextButton::buttonOnColourId, packetYellow);
     ctaButton.setColour (juce::TextButton::textColourOffId, packetInk);
@@ -386,7 +390,7 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramWowRate, wowRateSlider));
     attachments.emplace_back (std::make_unique<SliderAttachment> (processorRef.apvts, paramTone, toneSlider));
 
-    // Lock the pro controls — non-interactive, purely visual
+    // Lock the pro controls: non-interactive, purely visual.
     for (auto* comp : { static_cast<juce::Component*> (&driveSlider),
                         static_cast<juce::Component*> (&crushSlider),
                         static_cast<juce::Component*> (&wowDepthSlider),
@@ -521,7 +525,7 @@ void SauceBoxAudioProcessorEditor::paint (juce::Graphics& g)
 
         g.setColour (packetCream.withAlpha (0.9f));
         g.setFont (juce::FontOptions (10.5f, juce::Font::bold));
-        g.drawText ("UNLOCK PRO", badge.toNearestInt(), juce::Justification::centred);
+        g.drawText (hot_packet::theme::unlockBadgeText, badge.toNearestInt(), juce::Justification::centred);
     }
 }
 
@@ -594,7 +598,7 @@ void SauceBoxAudioProcessorEditor::resized()
 
 void SauceBoxAudioProcessorEditor::applyInstantSauceMacro (float value)
 {
-    // value is 0–100.  Sweet spot at 50 matches the "Instant Sauce" preset.
+    // value is 0-100. Sweet spot at 50 matches the "Instant Sauce" preset.
     // Clean end (0): subtle, barely touched.
     // Heavy end (100): thick lo-fi crunch.
 

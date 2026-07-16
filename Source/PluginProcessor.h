@@ -1,6 +1,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "Products/HotPacket/HotPacketPresets.h"
 
 class SauceBoxAudioProcessor : public juce::AudioProcessor,
                                public juce::ChangeBroadcaster,
@@ -48,19 +49,6 @@ public:
     using APVTS = juce::AudioProcessorValueTreeState;
     APVTS apvts;
 
-    struct Preset
-    {
-        const char* name = "";
-        float drive = 10.0f;
-        float texture = 0.22f;
-        float wowDepth = 0.20f;
-        float wowRate = 1.10f;
-        float tone = 0.58f;
-        float mix = 0.62f;
-        float output = -1.5f;
-        float instantSauce = 50.0f;
-    };
-
     static APVTS::ParameterLayout createParameterLayout();
 
 private:
@@ -78,7 +66,7 @@ private:
     bool isPrepared_ = false;
     int currentProgram_ = 0;
 
-    void applyPreset (const Preset& preset);
+    void applyPreset (const hot_packet::PresetDefinition& preset);
     int findPresetIndexFromCurrentParams() const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SauceBoxAudioProcessor)

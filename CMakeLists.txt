@@ -33,6 +33,9 @@ target_sources(SauceBox
     Source/PluginEditor.h
     Source/PluginProcessor.cpp
     Source/PluginProcessor.h
+    Source/Products/HotPacket/HotPacketManifest.h
+    Source/Products/HotPacket/HotPacketPresets.h
+    Source/Products/HotPacket/HotPacketTheme.h
 )
 
 juce_generate_juce_header(SauceBox)

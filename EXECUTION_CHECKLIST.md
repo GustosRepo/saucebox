@@ -22,6 +22,15 @@ Definition of done:
 
 ## Phase 1 - Free Version Foundation (Week 1)
 
+### Product architecture boundary
+
+- [x] Create Hot Packet product manifest. (`Source/Products/HotPacket/HotPacketManifest.h`)
+- [x] Move Hot Packet launch presets out of `PluginProcessor.cpp`. (`Source/Products/HotPacket/HotPacketPresets.h`)
+- [x] Move Hot Packet theme/copy/CTA data out of `PluginEditor.cpp`. (`Source/Products/HotPacket/HotPacketTheme.h`)
+- [x] Wire processor/editor to product files without changing DSP behavior.
+- [x] Confirm Release build after extraction. (`cmake --build build --config Release`)
+- [ ] Validate and polish Hot Packet V1 now that product data is isolated.
+
 ### DSP and stability
 
 - [x] Ensure stable startup and no crash on open/close. (Initial FL Studio smoke pass logged; broader DAW pass still open)
@@ -134,17 +143,18 @@ Definition of done:
 
 ## Immediate Next 5 Tasks
 
-- [x] Lock final Free and Pro feature list.
-- [x] Implement output limiter + gain match.
-- [x] Build and tune 12 Free presets. (Implemented as built-in program bank; final ear-tuning ongoing)
-- [x] Add in-plugin CTA and create track review landing page. (Spec in TRACK_REVIEW_LANDING_SPEC.md)
-- [x] Prototype Instant Sauce Free UI and macro mapping. (Completed: macro knob + 5-param mapping + Pro locked zone overlay)
+- [x] Extract Hot Packet manifest, presets, and theme data from processor/editor internals.
+- [ ] Validate and polish Hot Packet V1 product identity: name, packet copy, CTA copy, and visual tone.
+- [ ] Ear-check and revise the 12 launch presets in `HotPacketPresets.h`.
+- [ ] Confirm Instant Sauce macro curve against real vocal, 808, drum bus, keys, and mix-bus material.
+- [ ] Run explicit DAW save/recall and preset-switching smoke tests. (Command-line AU mono/stereo, sample-rate, and buffer validation passed 2026-07-16.)
 
 ## Current Open Blockers
 
 - Pick the exact Hot Packet Pro launch price.
 - ~~Tune Instant Sauce macro by ear so Free feels useful, not crippled.~~ (Tuned with smooth lerp2 curve; needs DAW ear-check)
 - ~~Decide visual locked-state treatment for Pro controls.~~ (Done: dark overlay + "🔒 PRO" badge + disabled)
-- Run explicit save/recall, preset switching during playback, mono/stereo, sample-rate, and buffer smoke tests.
+- Run explicit DAW save/recall and preset switching during playback.
+- ~~Clean stale `Sauce Box` build artifacts before packaging release files.~~ (Done: removed from `build/SauceBox_artefacts/Release`)
 - Build and publish the actual track review landing page/form from TRACK_REVIEW_LANDING_SPEC.md.
 - Decide whether first-run hints belong in Free V1 or should stay out to keep the interface clean.
