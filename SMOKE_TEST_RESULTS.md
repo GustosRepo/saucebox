@@ -27,12 +27,29 @@ Status: PASS
 19. `auval -v aufx SeSc EByt` passed for Secret Sauce after the performance-button pass.
 20. Secret Sauce AU now publishes 16 parameters, including the six performance buttons.
 21. `auval -v aufx SBox SaBx` passed for Hot Packet after the shared-code changes.
+22. Added first-pass host tempo sync for Secret Sauce movement divisions, chops, repeats, dropouts, reverse windows, throws, and tape-stop curves.
+23. Release build completed successfully after the tempo-sync pass.
+24. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+25. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the tempo-sync pass.
+26. Added first-pass Secret Sauce flavor intelligence. Each Flavor mode now biases timing, depth, chop, stutter, filter, width, gate depth, reverse amount, throw amount, saturation, dropout shape, and tape behavior.
+27. Release build completed successfully after the flavor-intelligence pass.
+28. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+29. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the flavor-intelligence pass.
+30. Added first-pass Secret Sauce movement smoothing for chop gates, dropout gates, reverse blend, throw blend, tape amount, and tape dip.
+31. Release build completed successfully after the smoothing pass.
+32. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+33. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the smoothing pass.
+34. Tuned the 12 Secret Sauce factory flavor preset defaults for the first real-material listening pass.
+35. Added `SECRET_SAUCE_LISTENING_CHECKLIST.md` for vocals, loops, 808/bass, drums, and transition feedback.
+36. Release build completed successfully after the preset/listening-prep pass.
+37. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+38. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the preset/listening-prep pass.
 
 ### Notes
 
 - This is a compile/build validation only.
 - Secret Sauce has its own plugin target and identity.
-- Secret Sauce engine v0 is intentionally simple. It now includes first-pass performance gestures, but tempo sync, pitch/formant, deeper reverse/grab, throw timing, and refined tape-stop behavior still need listening-driven iteration.
+- Secret Sauce engine v0 is intentionally simple. It now includes first-pass performance gestures, host-tempo-synced timing, flavor-specific DSP profiles, smoothed movement transitions, and tuned factory flavor presets, but pitch/formant, deeper reverse/grab, throw timing, and refined tape-stop behavior still need listening-driven iteration.
 - The other single products now have metadata scaffolds, but do not have dedicated plugin targets or DSP engines yet.
 - The build used the existing `COPY_PLUGIN_AFTER_BUILD` behavior and installed/overwrote Hot Packet and Secret Sauce AU/VST3 artifacts in the user plugin folders.
 

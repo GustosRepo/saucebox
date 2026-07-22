@@ -7,8 +7,9 @@ Current build targets:
 - Hot Packet: free/entry texture plugin built around Instant Sauce.
 - Secret Sauce: flagship movement/effects plugin target. Engine v0 includes
   Sauce macro control, movement depth/rate, chop, stutter-style sample hold,
-  moving filter, width, six performance buttons, mix, output, and safety
-  limiting.
+  host-tempo-synced movement divisions, moving filter, width, six performance
+  buttons, flavor-specific DSP profiles, smoothed movement/performance
+  transitions, tuned factory flavor presets, mix, output, and safety limiting.
 
 Flagship paid product direction:
 
@@ -56,6 +57,7 @@ The 808Bytes product ecosystem grows around the Sauce family:
 
 See `SECRET_SAUCE_PRODUCT_STRATEGY.md` for the Secret Sauce product plan.
 See `PRODUCT_LINEUP.md` for all singles, suite packaging, SKUs, and planned plugin IDs.
+See `SECRET_SAUCE_LISTENING_CHECKLIST.md` for the first real-material listening pass.
 
 ## Build (macOS)
 
@@ -86,5 +88,5 @@ After build, look under `build` products for:
 
 - This is intentionally simple and musical, not a strict analog model.
 - Secret Sauce performance effects are first-pass playable gestures; next
-  iterations can deepen tempo sync, pitch/formant movement, reverse grabs, and
-  throw timing after listening feedback.
+  iterations can deepen pitch/formant movement, reverse grabs, throw timing, and
+  flavor-specific groove after listening feedback.

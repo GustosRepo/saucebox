@@ -61,8 +61,14 @@ private:
     std::array<CrushState, 2> crushStates_;
     std::array<float, 2> toneState_ { 0.0f, 0.0f };
     std::array<float, 2> wowPhase_  { 0.0f, 0.0f };
+    std::array<float, 2> secretGateState_ { 1.0f, 1.0f };
+    std::array<float, 2> secretReverseMixState_ { 0.0f, 0.0f };
+    std::array<float, 2> secretThrowMixState_ { 0.0f, 0.0f };
+    std::array<float, 2> secretTapeAmountState_ { 0.0f, 0.0f };
+    std::array<float, 2> secretTapeDipState_ { 0.0f, 0.0f };
     juce::AudioBuffer<float> secretDelayBuffer_;
     int secretDelayWritePosition_ = 0;
+    double secretFallbackPpq_ = 0.0;
 
     double sampleRate_ = 44100.0;
     bool isPrepared_ = false;

@@ -32,18 +32,18 @@ inline constexpr auto unlockBadgeText = secret_sauce::theme::unlockBadgeText;
 }
 
 inline constexpr std::array<hot_packet::PresetDefinition, secret_sauce::factoryRecipes.size()> factoryPresets {{
-    { "Self Sample Sauce", 0.34f, 0.42f, 0.12f, 0.08f, 0.58f, 0.64f, -1.0f, 48.0f },
-    { "Vocal Chop",       0.66f, 0.58f, 0.54f, 0.18f, 0.62f, 0.60f, -1.5f, 62.0f },
-    { "Reverse Pull",     0.28f, 0.62f, 0.10f, 0.06f, 0.46f, 0.68f, -1.8f, 58.0f },
-    { "Stutter Step",     0.78f, 0.66f, 0.28f, 0.72f, 0.56f, 0.56f, -2.0f, 70.0f },
-    { "Tape Wobble",      0.22f, 0.70f, 0.04f, 0.02f, 0.38f, 0.70f, -1.4f, 54.0f },
-    { "Dirty Dream",      0.42f, 0.74f, 0.22f, 0.16f, 0.34f, 0.72f, -2.4f, 76.0f },
-    { "Drip Throw",       0.38f, 0.52f, 0.06f, 0.12f, 0.70f, 0.58f, -1.2f, 60.0f },
-    { "Half-Time Melt",   0.18f, 0.68f, 0.08f, 0.10f, 0.42f, 0.66f, -1.8f, 66.0f },
-    { "Formant Ghost",    0.48f, 0.60f, 0.14f, 0.14f, 0.52f, 0.62f, -1.6f, 64.0f },
-    { "Hook Maker",       0.36f, 0.46f, 0.08f, 0.06f, 0.68f, 0.56f, -0.8f, 52.0f },
-    { "Dark R&B",         0.30f, 0.64f, 0.16f, 0.10f, 0.30f, 0.70f, -2.0f, 68.0f },
-    { "Trap Motion",      0.82f, 0.60f, 0.42f, 0.58f, 0.58f, 0.60f, -2.2f, 72.0f }
+    { "Self Sample Sauce", 0.32f, 0.38f, 0.08f, 0.05f, 0.64f, 0.62f, -1.0f, 50.0f },
+    { "Vocal Chop",       0.68f, 0.62f, 0.62f, 0.22f, 0.66f, 0.58f, -1.8f, 66.0f },
+    { "Reverse Pull",     0.26f, 0.66f, 0.08f, 0.04f, 0.42f, 0.66f, -2.0f, 64.0f },
+    { "Stutter Step",     0.80f, 0.70f, 0.24f, 0.82f, 0.58f, 0.54f, -2.4f, 74.0f },
+    { "Tape Wobble",      0.20f, 0.72f, 0.02f, 0.00f, 0.34f, 0.68f, -1.8f, 58.0f },
+    { "Dirty Dream",      0.44f, 0.78f, 0.26f, 0.22f, 0.32f, 0.70f, -2.8f, 78.0f },
+    { "Drip Throw",       0.36f, 0.54f, 0.04f, 0.10f, 0.76f, 0.56f, -1.6f, 64.0f },
+    { "Half-Time Melt",   0.16f, 0.72f, 0.06f, 0.08f, 0.38f, 0.64f, -2.2f, 70.0f },
+    { "Formant Ghost",    0.46f, 0.64f, 0.16f, 0.18f, 0.50f, 0.60f, -2.0f, 68.0f },
+    { "Hook Maker",       0.34f, 0.44f, 0.06f, 0.04f, 0.72f, 0.54f, -1.2f, 56.0f },
+    { "Dark R&B",         0.28f, 0.68f, 0.14f, 0.08f, 0.26f, 0.68f, -2.4f, 72.0f },
+    { "Trap Motion",      0.84f, 0.64f, 0.50f, 0.66f, 0.60f, 0.58f, -2.6f, 76.0f }
 }};
 
 inline constexpr auto placeholderEngineNote =

@@ -24,6 +24,49 @@ constexpr auto paramDropout = secret_sauce::performance::dropout;
 constexpr auto paramTapeStop = secret_sauce::performance::tapeStop;
 constexpr auto paramThrowFx = secret_sauce::performance::throwFx;
 constexpr auto stateProgramIndex = hot_packet::state::programIndex;
+
+float smoothStep (float edge0, float edge1, float value)
+{
+    const auto x = juce::jlimit (0.0f, 1.0f, (value - edge0) / (edge1 - edge0));
+    return x * x * (3.0f - 2.0f * x);
+}
+
+void smoothToward (float& state, float target, float coefficient)
+{
+    state += (target - state) * coefficient;
+}
+
+struct SecretFlavorProfile
+{
+    int divisionOffset = 0;
+    float depthBias = 0.0f;
+    float chopBias = 0.0f;
+    float stutterBias = 0.0f;
+    float filterBias = 0.0f;
+    float widthBias = 0.0f;
+    float gateDepth = 0.78f;
+    float reverseAmount = 0.0f;
+    float throwAmount = 0.0f;
+    float saturationDrive = 0.0f;
+    float dropoutStart = 0.62f;
+    float tapeDarken = 0.0f;
+    float tapeDip = 0.0f;
+};
+
+constexpr std::array<SecretFlavorProfile, 12> secretFlavorProfiles {{
+    {  0,  0.00f,  0.00f,  0.00f,  0.02f,  0.00f, 0.58f, 0.00f, 0.00f, 0.00f, 0.72f, 0.00f, 0.00f }, // Self Sample
+    {  1,  0.06f,  0.22f,  0.04f,  0.08f, -0.06f, 0.92f, 0.00f, 0.00f, 0.02f, 0.52f, 0.00f, 0.00f }, // Vocal Chop
+    { -1,  0.08f, -0.02f, -0.02f, -0.12f,  0.04f, 0.54f, 0.58f, 0.08f, 0.00f, 0.68f, 0.08f, 0.00f }, // Reverse Pull
+    {  2,  0.10f,  0.10f,  0.28f,  0.00f, -0.10f, 0.86f, 0.00f, 0.02f, 0.04f, 0.50f, 0.00f, 0.00f }, // Stutter Step
+    { -2,  0.12f, -0.08f, -0.08f, -0.20f, -0.04f, 0.45f, 0.08f, 0.00f, 0.05f, 0.76f, 0.30f, 0.12f }, // Tape Wobble
+    {  0,  0.16f,  0.10f,  0.10f, -0.24f,  0.08f, 0.74f, 0.10f, 0.08f, 0.42f, 0.58f, 0.18f, 0.04f }, // Dirty Dream
+    { -1,  0.04f, -0.08f,  0.06f,  0.16f,  0.16f, 0.50f, 0.04f, 0.60f, 0.00f, 0.70f, 0.00f, 0.00f }, // Drip Throw
+    { -3,  0.10f, -0.04f,  0.00f, -0.18f,  0.06f, 0.46f, 0.12f, 0.10f, 0.02f, 0.74f, 0.20f, 0.06f }, // Half-Time Melt
+    {  0,  0.08f,  0.02f,  0.04f, -0.04f,  0.14f, 0.56f, 0.18f, 0.04f, 0.08f, 0.64f, 0.06f, 0.00f }, // Formant Ghost
+    { -1, -0.04f, -0.08f, -0.04f,  0.18f,  0.22f, 0.42f, 0.00f, 0.12f, 0.00f, 0.78f, 0.00f, 0.00f }, // Hook Maker
+    { -2,  0.10f, -0.02f, -0.02f, -0.28f,  0.12f, 0.48f, 0.06f, 0.08f, 0.06f, 0.72f, 0.24f, 0.08f }, // Dark R&B
+    {  2,  0.06f,  0.18f,  0.22f,  0.02f, -0.02f, 0.94f, 0.00f, 0.04f, 0.08f, 0.48f, 0.00f, 0.00f }  // Trap Motion
+}};
 #else
 constexpr auto paramDrive = hot_packet::parameters::drive;
 constexpr auto paramCrush = hot_packet::parameters::texture;
@@ -90,6 +133,9 @@ int SauceBoxAudioProcessor::findPresetIndexFromCurrentParams() const
     const auto tone = apvts.getRawParameterValue (paramTone)->load();
     const auto mix = apvts.getRawParameterValue (paramMix)->load();
     const auto output = apvts.getRawParameterValue (paramOutput)->load();
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    const auto flavor = apvts.getRawParameterValue (paramFlavor)->load();
+#endif
 
     const auto nearlyEqual = [] (float a, float b, float tolerance)
     {
@@ -100,7 +146,8 @@ int SauceBoxAudioProcessor::findPresetIndexFromCurrentParams() const
     {
         const auto& p = presets[i];
 #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
-        if (nearlyEqual (drive, p.drive, 0.02f)
+        if (nearlyEqual (flavor, static_cast<float> (i), 0.01f)
+            && nearlyEqual (drive, p.drive, 0.02f)
             && nearlyEqual (texture, p.texture, 0.02f)
             && nearlyEqual (wowDepth, p.wowDepth, 0.02f)
             && nearlyEqual (wowRate, p.wowRate, 0.02f)
@@ -133,7 +180,13 @@ void SauceBoxAudioProcessor::prepareToPlay (double sampleRate, int)
 
     toneState_.fill (0.0f);
     wowPhase_.fill (0.0f);
+    secretGateState_.fill (1.0f);
+    secretReverseMixState_.fill (0.0f);
+    secretThrowMixState_.fill (0.0f);
+    secretTapeAmountState_.fill (0.0f);
+    secretTapeDipState_.fill (0.0f);
     secretDelayWritePosition_ = 0;
+    secretFallbackPpq_ = 0.0;
     secretDelayBuffer_.setSize (2, juce::jmax (1, static_cast<int> (sampleRate_ * 2.0)));
     secretDelayBuffer_.clear();
     isPrepared_ = true;
@@ -178,12 +231,15 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
 #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
     const auto sauce = apvts.getRawParameterValue (paramInstantSauce)->load() / 100.0f;
-    const auto movementRateHz = juce::jmap (driveDb, 0.05f, 12.0f);
-    const auto movementDepth = crush;
-    const auto chop = wowDepth;
-    const auto stutter = wowRate;
-    const auto filter = tone;
-    const auto width = apvts.getRawParameterValue (paramWidth)->load();
+    const auto flavorIndex = juce::jlimit (0, static_cast<int> (secretFlavorProfiles.size()) - 1,
+                                           static_cast<int> (std::round (apvts.getRawParameterValue (paramFlavor)->load())));
+    const auto& flavor = secretFlavorProfiles[static_cast<size_t> (flavorIndex)];
+    const auto movementRate = driveDb;
+    const auto movementDepth = juce::jlimit (0.0f, 1.0f, crush + flavor.depthBias * sauce);
+    const auto chop = juce::jlimit (0.0f, 1.0f, wowDepth + flavor.chopBias * sauce);
+    const auto stutter = juce::jlimit (0.0f, 1.0f, wowRate + flavor.stutterBias * sauce);
+    const auto filter = juce::jlimit (0.0f, 1.0f, tone + flavor.filterBias * sauce);
+    const auto width = juce::jlimit (0.0f, 1.0f, apvts.getRawParameterValue (paramWidth)->load() + flavor.widthBias * sauce);
     const auto freezeOn = apvts.getRawParameterValue (paramFreeze)->load() > 0.5f;
     const auto reverseOn = apvts.getRawParameterValue (paramReverseMomentary)->load() > 0.5f;
     const auto repeatOn = apvts.getRawParameterValue (paramRepeat)->load() > 0.5f;
@@ -191,14 +247,60 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     const auto tapeStopOn = apvts.getRawParameterValue (paramTapeStop)->load() > 0.5f;
     const auto throwOn = apvts.getRawParameterValue (paramThrowFx)->load() > 0.5f;
     const auto outputGain = juce::Decibels::decibelsToGain (outputDb);
-    const auto phaseInc = 2.0f * juce::MathConstants<float>::pi * movementRateHz / static_cast<float> (sampleRate_);
     const auto channelsToProcess = juce::jmin (bufferChannels, totalNumInputChannels, static_cast<int> (crushStates_.size()));
     const auto delayBufferSamples = secretDelayBuffer_.getNumSamples();
+    if (delayBufferSamples < 2)
+        return;
+
+    double bpm = 120.0;
+    double blockStartPpq = secretFallbackPpq_;
+
+    if (auto* playHead = getPlayHead())
+        if (const auto position = playHead->getPosition())
+        {
+            bpm = juce::jlimit (40.0, 240.0, position->getBpm().orFallback (bpm));
+
+            if (const auto ppq = position->getPpqPosition())
+                blockStartPpq = *ppq;
+        }
+
+    static constexpr std::array<double, 8> beatDivisions {{
+        4.0,      // 1 bar
+        2.0,      // 1/2
+        1.0,      // 1/4
+        0.5,      // 1/8
+        1.0 / 3.0,// 1/8 triplet feel
+        0.25,     // 1/16
+        0.125,    // 1/32
+        0.0625    // 1/64
+    }};
+
+    const auto baseDivisionIndex = juce::jlimit (0, static_cast<int> (beatDivisions.size()) - 1,
+                                                 static_cast<int> (std::round (movementRate * static_cast<float> (beatDivisions.size() - 1))));
+    const auto divisionIndex = juce::jlimit (0, static_cast<int> (beatDivisions.size()) - 1,
+                                             baseDivisionIndex + flavor.divisionOffset);
+    const auto movementDivision = beatDivisions[static_cast<size_t> (divisionIndex)];
+    const auto samplesPerQuarter = sampleRate_ * 60.0 / bpm;
+    const auto ppqPerSample = 1.0 / samplesPerQuarter;
+    const auto repeatDivision = beatDivisions[static_cast<size_t> (juce::jlimit (2, 7, divisionIndex + 2))];
+    const auto dropoutDivision = beatDivisions[static_cast<size_t> (juce::jlimit (2, 6, divisionIndex + 1))];
+    const auto throwDivision = beatDivisions[static_cast<size_t> (juce::jlimit (1, 5, divisionIndex + (repeatOn ? 2 : 1)))];
     const auto delayWriteStart = secretDelayWritePosition_;
     const auto throwDelaySamples = juce::jlimit (1, delayBufferSamples - 1,
-                                                 static_cast<int> (0.24f * static_cast<float> (sampleRate_)));
+                                                 static_cast<int> (std::round (samplesPerQuarter * throwDivision)));
     const auto reverseWindowSamples = juce::jlimit (1, delayBufferSamples - 1,
-                                                   static_cast<int> ((0.12f + sauce * 0.28f) * static_cast<float> (sampleRate_)));
+                                                   static_cast<int> (std::round (samplesPerQuarter * juce::jlimit (0.125, 1.0, movementDivision * 2.0))));
+    const auto holdDivision = freezeOn ? 0.25 : juce::jlimit (0.015625, 0.25, repeatDivision * (1.0 - static_cast<double> (stutter) * 0.78));
+    const auto holdSamples = juce::jlimit (1, 8192, static_cast<int> (std::round (samplesPerQuarter * holdDivision)));
+    const auto reverseMix = juce::jlimit (0.0f, 0.86f, (reverseOn ? 0.72f : 0.0f) + flavor.reverseAmount * sauce);
+    const auto throwMix = juce::jlimit (0.0f, 0.78f, (throwOn ? 0.46f : 0.0f) + flavor.throwAmount * sauce);
+    const auto tapeAmount = juce::jlimit (0.0f, 1.0f, (tapeStopOn ? 1.0f : 0.0f) + flavor.tapeDarken * sauce);
+    const auto tapeDipAmount = juce::jlimit (0.0f, 1.0f, (tapeStopOn ? 1.0f : 0.0f) + flavor.tapeDip * sauce);
+    const auto saturationDrive = 0.55f + flavor.saturationDrive;
+    const auto wrapUnit = [] (double value)
+    {
+        return static_cast<float> (value - std::floor (value));
+    };
 
     for (int ch = 0; ch < channelsToProcess; ++ch)
     {
@@ -206,57 +308,73 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         auto* delayData = secretDelayBuffer_.getWritePointer (ch);
         auto& holdState = crushStates_[static_cast<size_t> (ch)];
         auto& filterState = toneState_[static_cast<size_t> (ch)];
-        auto& phase = wowPhase_[static_cast<size_t> (ch)];
+        auto& gateState = secretGateState_[static_cast<size_t> (ch)];
+        auto& reverseMixState = secretReverseMixState_[static_cast<size_t> (ch)];
+        auto& throwMixState = secretThrowMixState_[static_cast<size_t> (ch)];
+        auto& tapeAmountState = secretTapeAmountState_[static_cast<size_t> (ch)];
+        auto& tapeDipState = secretTapeDipState_[static_cast<size_t> (ch)];
 
         for (int n = 0; n < numSamples; ++n)
         {
             const auto dry = data[n];
-            const auto lfo = 0.5f + 0.5f * std::sin (phase + (ch == 1 ? 0.37f : 0.0f));
-            const auto fasterLfo = 0.5f + 0.5f * std::sin (phase * 2.0f);
+            const auto samplePpq = blockStartPpq + static_cast<double> (n) * ppqPerSample;
+            const auto movementPosition = wrapUnit (samplePpq / movementDivision);
+            const auto repeatPosition = wrapUnit (samplePpq / repeatDivision);
+            const auto dropoutPosition = wrapUnit (samplePpq / dropoutDivision);
+            const auto lfoPhase = 2.0f * juce::MathConstants<float>::pi * movementPosition + (ch == 1 ? 0.37f : 0.0f);
+            const auto lfo = 0.5f - 0.5f * std::cos (lfoPhase);
+            const auto fasterLfo = 0.5f - 0.5f * std::cos (2.0f * juce::MathConstants<float>::pi * repeatPosition);
             const auto writePosition = (delayWriteStart + n) % delayBufferSamples;
             const auto throwReadPosition = (writePosition + delayBufferSamples - throwDelaySamples) % delayBufferSamples;
             const auto reverseReadPosition = (writePosition + delayBufferSamples - 1 - (n % reverseWindowSamples)) % delayBufferSamples;
             const auto throwSample = delayData[throwReadPosition];
             const auto reverseSample = delayData[reverseReadPosition];
-            phase += phaseInc;
-            if (phase > 2.0f * juce::MathConstants<float>::pi)
-                phase -= 2.0f * juce::MathConstants<float>::pi;
 
             const auto chopThreshold = juce::jmap (chop, 0.08f, 0.72f);
-            const auto chopGate = fasterLfo > chopThreshold ? 1.0f : (1.0f - chop * sauce * 0.78f);
-            const auto dropoutGate = (! dropoutOn || fasterLfo > 0.38f) ? 1.0f : 0.0f;
+            const auto chopOpen = smoothStep (chopThreshold - 0.12f, chopThreshold + 0.12f, fasterLfo);
+            const auto chopGate = juce::jmap (chopOpen, 1.0f - chop * sauce * flavor.gateDepth, 1.0f);
+            const auto dropoutStart = juce::jlimit (0.36f, 0.82f, flavor.dropoutStart - chop * sauce * 0.12f);
+            const auto dropoutEdge = smoothStep (dropoutStart, juce::jmin (0.98f, dropoutStart + 0.12f), dropoutPosition);
+            const auto dropoutGate = dropoutOn ? (1.0f - dropoutEdge) : 1.0f;
+            smoothToward (gateState, chopGate * dropoutGate, 0.035f);
             const auto movementGain = 1.0f - sauce * movementDepth * 0.56f * lfo;
 
-            const auto holdSamples = freezeOn ? juce::jlimit (128, 4096, static_cast<int> (sampleRate_ * 0.08))
-                                              : juce::jlimit (1, 96, static_cast<int> (std::round (1.0f + stutter * sauce * (repeatOn ? 180.0f : 95.0f))));
             if ((holdState.phase % holdSamples) == 0)
                 holdState.heldSample = dry;
             holdState.phase = (holdState.phase + 1) % holdSamples;
 
             auto x = juce::jmap (juce::jlimit (0.0f, 1.0f, stutter * sauce + (repeatOn ? 0.35f : 0.0f)), dry, holdState.heldSample);
 
-            if (reverseOn)
-                x = juce::jmap (0.72f, x, reverseSample);
+            smoothToward (reverseMixState, reverseMix, 0.018f);
+            if (reverseMixState > 0.001f)
+                x = juce::jmap (reverseMixState, x, reverseSample);
 
-            x *= movementGain * chopGate * dropoutGate;
+            x *= movementGain * gateState;
 
             const auto movingFilter = juce::jlimit (0.0f, 1.0f, filter + (lfo - 0.5f) * movementDepth * sauce * 0.36f);
-            const auto cutoffHz = juce::jmap (movingFilter * (tapeStopOn ? 0.42f : 1.0f), 250.0f, 17000.0f);
+            const auto tapeStopPosition = wrapUnit (samplePpq);
+            const auto tapeMotion = 0.5f - 0.5f * std::cos (2.0f * juce::MathConstants<float>::pi * tapeStopPosition);
+            const auto tapeStopCurve = tapeStopOn ? (1.0f - tapeStopPosition) : (1.0f - 0.36f * tapeMotion);
+            smoothToward (tapeAmountState, tapeAmount, 0.012f);
+            smoothToward (tapeDipState, tapeDipAmount, 0.012f);
+            const auto tapeToneScale = 1.0f - tapeAmountState * (tapeStopOn ? 0.82f * tapeStopPosition : 0.42f * tapeMotion);
+            const auto cutoffHz = juce::jmap (movingFilter * juce::jlimit (0.12f, 1.0f, tapeToneScale), 250.0f, 17000.0f);
             const auto lpCoeff = std::exp (-2.0f * juce::MathConstants<float>::pi * cutoffHz / static_cast<float> (sampleRate_));
             filterState = (1.0f - lpCoeff) * x + lpCoeff * filterState;
 
-            auto saturated = std::tanh (filterState * (1.0f + sauce * 0.55f));
-            if (throwOn)
-                saturated = juce::jlimit (-1.0f, 1.0f, saturated + throwSample * 0.46f);
+            auto saturated = std::tanh (filterState * (1.0f + sauce * saturationDrive));
+            smoothToward (throwMixState, throwMix, 0.014f);
+            if (throwMixState > 0.001f)
+                saturated = juce::jlimit (-1.0f, 1.0f, saturated + throwSample * throwMixState);
 
             auto out = (dry * (1.0f - mix) + saturated * mix) * outputGain;
-            if (tapeStopOn)
-                out *= 0.72f - 0.28f * lfo;
+            if (tapeDipState > 0.001f)
+                out *= 1.0f - tapeDipState * (1.0f - (0.48f + 0.52f * tapeStopCurve));
 
             out = std::tanh (out * 1.35f) / std::tanh (1.35f);
             data[n] = juce::jlimit (-1.0f, 1.0f, out);
 
-            delayData[writePosition] = juce::jlimit (-1.0f, 1.0f, out + throwSample * (throwOn ? 0.42f : 0.18f));
+            delayData[writePosition] = juce::jlimit (-1.0f, 1.0f, out + throwSample * (throwMixState > 0.001f ? 0.42f : 0.18f));
         }
     }
 
@@ -276,6 +394,7 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     }
 
     secretDelayWritePosition_ = (delayWriteStart + numSamples) % delayBufferSamples;
+    secretFallbackPpq_ = blockStartPpq + static_cast<double> (numSamples) * ppqPerSample;
     return;
 #else
     const auto driveGain = juce::Decibels::decibelsToGain (driveDb);

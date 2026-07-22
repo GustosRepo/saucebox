@@ -143,5 +143,13 @@ The first engineering step is product scaffolding:
    motion, width, mix, output safety. Done.
 5. Add first-pass performance buttons: Freeze, Reverse, Repeat, Dropout, Tape
    Stop, and Throw. Done.
-6. Move shared DSP into reusable modules before deepening the advanced Secret
+6. Add first-pass host tempo sync for movement, chops, repeats, dropouts,
+   reverse windows, throws, and tape-stop curves. Done.
+7. Add first-pass flavor intelligence so the Flavor selector changes timing,
+   gate depth, tone, width, saturation, reverse, throw, and tape behavior. Done.
+8. Add movement/performance smoothing for chop gates, dropout gates, reverse,
+   throw, and tape transitions. Done.
+9. Tune the 12 factory flavor presets for a stronger first listening pass. Done.
+10. Add a real-material listening checklist for feedback capture. Done.
+11. Move shared DSP into reusable modules before deepening the advanced Secret
    Sauce movement engine.

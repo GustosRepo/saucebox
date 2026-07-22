@@ -14,8 +14,13 @@
 - [x] Replace Secret Sauce placeholder DSP with engine v0: movement, chop, stutter-style hold, filter motion, width, mix/output safety.
 - [x] Add first-pass Secret Sauce performance buttons: Freeze, Reverse, Repeat, Dropout, Tape Stop, Throw.
 - [x] Add Secret Sauce UI row for Sauce, Flavor, Mix, Output, Pro controls, and performance buttons.
+- [x] Add first-pass host tempo sync for Secret Sauce movement, chop, repeat, dropout, reverse, throw, and tape-stop timing.
+- [x] Add first-pass Secret Sauce flavor intelligence so each Flavor mode biases DSP behavior.
+- [x] Add first-pass smoothing for Secret Sauce gates, reverse, throw, and tape transitions.
+- [x] Tune Secret Sauce factory flavor presets for the first real-material listening pass.
+- [x] Add Secret Sauce listening checklist for user feedback capture.
 - [ ] Extract shared DSP modules needed by both products.
-- [ ] Build Secret Sauce advanced engine modules: tempo sync, random modulation, pitch/formant, deeper reverse/grab, synced throw effects, refined tape stop.
+- [ ] Build Secret Sauce advanced engine modules: random modulation, pitch/formant, deeper reverse/grab, refined synced throw effects, refined tape stop.
 - [ ] Replace Secret Sauce packet-style UI with a dedicated flagship visual system.
 - [ ] Add separate plugin targets and unique IDs for each single sauce product.
 - [ ] Add Sauce Box suite target that includes all sauce modules.

@@ -35,6 +35,9 @@ installed plugin.
 
 Secret Sauce now has its own AU/VST3/Standalone target and product identity.
 Engine v0 includes Sauce macro control, movement depth/rate, chop,
-stutter-style sample hold, moving filter, width, mix, output, safety limiting,
-and six performance buttons: Freeze, Reverse, Repeat, Dropout, Tape Stop, and
-Throw.
+stutter-style sample hold, host-tempo-synced movement divisions, moving filter,
+width, mix, output, safety limiting, and six performance buttons: Freeze,
+Reverse, Repeat, Dropout, Tape Stop, and Throw. The Secret Sauce Flavor selector
+now applies distinct DSP profiles for timing, gate depth, tone, width,
+saturation, reverse, throw, and tape behavior. Movement/performance transitions
+are smoothed to reduce abrupt button and rhythmic gate changes.
