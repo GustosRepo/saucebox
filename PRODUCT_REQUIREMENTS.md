@@ -1,3 +1,19 @@
+# Sauce Box Product Requirements (V1)
+
+## Product Direction Update
+
+Secret Sauce is the flagship paid product.
+
+Hot Packet remains the free/entry product and trust builder. Its job is to give
+users quick texture and warmth, then point them toward Secret Sauce when they
+need movement, chops, pitch, stutters, reverse pulls, and creative effects for
+self-sampled material.
+
+The business model remains individual paid sauce plugins plus the full Sauce Box
+suite bundle. Secret Sauce is the lead seller, not the only seller.
+
+See `SECRET_SAUCE_PRODUCT_STRATEGY.md` for the flagship product brief.
+
 # Hot Packet Product Requirements (V1)
 
 ## North Star

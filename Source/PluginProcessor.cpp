@@ -1,9 +1,24 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Products/ActiveProduct.h"
 #include "Products/HotPacket/HotPacketManifest.h"
+#include "Products/ProductCatalog.h"
 
 namespace
 {
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+constexpr auto paramDrive = secret_sauce::parameters::movementRate;
+constexpr auto paramCrush = secret_sauce::parameters::movementDepth;
+constexpr auto paramWowDepth = secret_sauce::parameters::chop;
+constexpr auto paramWowRate = secret_sauce::parameters::stutter;
+constexpr auto paramTone = secret_sauce::parameters::filter;
+constexpr auto paramMix = secret_sauce::parameters::mix;
+constexpr auto paramOutput = secret_sauce::parameters::output;
+constexpr auto paramInstantSauce = secret_sauce::parameters::sauce;
+constexpr auto paramFlavor = secret_sauce::parameters::flavor;
+constexpr auto paramWidth = secret_sauce::parameters::width;
+constexpr auto stateProgramIndex = hot_packet::state::programIndex;
+#else
 constexpr auto paramDrive = hot_packet::parameters::drive;
 constexpr auto paramCrush = hot_packet::parameters::texture;
 constexpr auto paramWowDepth = hot_packet::parameters::wowDepth;
@@ -13,8 +28,9 @@ constexpr auto paramMix = hot_packet::parameters::mix;
 constexpr auto paramOutput = hot_packet::parameters::output;
 constexpr auto paramInstantSauce = hot_packet::parameters::instantSauce;
 constexpr auto stateProgramIndex = hot_packet::state::programIndex;
+#endif
 
-constexpr auto& presets = hot_packet::factoryPresets;
+constexpr auto& presets = active_product::factoryPresets;
 }
 
 SauceBoxAudioProcessor::SauceBoxAudioProcessor()
@@ -26,6 +42,17 @@ SauceBoxAudioProcessor::SauceBoxAudioProcessor()
 
 void SauceBoxAudioProcessor::applyPreset (const hot_packet::PresetDefinition& preset)
 {
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    if (auto* flavorParam = apvts.getParameter (paramFlavor))
+        flavorParam->setValueNotifyingHost (flavorParam->convertTo0to1 (static_cast<float> (currentProgram_)));
+
+    if (auto* sauceParam = apvts.getParameter (paramInstantSauce))
+        sauceParam->setValueNotifyingHost (sauceParam->convertTo0to1 (preset.instantSauce));
+
+    if (auto* widthParam = apvts.getParameter (paramWidth))
+        widthParam->setValueNotifyingHost (widthParam->convertTo0to1 (juce::jlimit (0.20f, 0.90f, preset.mix + 0.08f)));
+#endif
+
     if (auto* driveParam = apvts.getParameter (paramDrive))
         driveParam->setValueNotifyingHost (driveParam->convertTo0to1 (preset.drive));
 
@@ -66,6 +93,16 @@ int SauceBoxAudioProcessor::findPresetIndexFromCurrentParams() const
     for (size_t i = 0; i < presets.size(); ++i)
     {
         const auto& p = presets[i];
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+        if (nearlyEqual (drive, p.drive, 0.02f)
+            && nearlyEqual (texture, p.texture, 0.02f)
+            && nearlyEqual (wowDepth, p.wowDepth, 0.02f)
+            && nearlyEqual (wowRate, p.wowRate, 0.02f)
+            && nearlyEqual (tone, p.tone, 0.02f)
+            && nearlyEqual (mix, p.mix, 0.02f)
+            && nearlyEqual (output, p.output, 0.15f))
+            return static_cast<int> (i);
+#else
         if (nearlyEqual (drive, p.drive, 0.11f)
             && nearlyEqual (texture, p.texture, 0.002f)
             && nearlyEqual (wowDepth, p.wowDepth, 0.002f)
@@ -74,6 +111,7 @@ int SauceBoxAudioProcessor::findPresetIndexFromCurrentParams() const
             && nearlyEqual (mix, p.mix, 0.002f)
             && nearlyEqual (output, p.output, 0.11f))
             return static_cast<int> (i);
+#endif
     }
 
     return -1;
@@ -129,6 +167,74 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     const auto mix = apvts.getRawParameterValue (paramMix)->load();
     const auto outputDb = apvts.getRawParameterValue (paramOutput)->load();
 
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    const auto sauce = apvts.getRawParameterValue (paramInstantSauce)->load() / 100.0f;
+    const auto movementRateHz = juce::jmap (driveDb, 0.05f, 12.0f);
+    const auto movementDepth = crush;
+    const auto chop = wowDepth;
+    const auto stutter = wowRate;
+    const auto filter = tone;
+    const auto width = apvts.getRawParameterValue (paramWidth)->load();
+    const auto outputGain = juce::Decibels::decibelsToGain (outputDb);
+    const auto phaseInc = 2.0f * juce::MathConstants<float>::pi * movementRateHz / static_cast<float> (sampleRate_);
+    const auto channelsToProcess = juce::jmin (bufferChannels, totalNumInputChannels, static_cast<int> (crushStates_.size()));
+
+    for (int ch = 0; ch < channelsToProcess; ++ch)
+    {
+        auto* data = buffer.getWritePointer (ch);
+        auto& holdState = crushStates_[static_cast<size_t> (ch)];
+        auto& filterState = toneState_[static_cast<size_t> (ch)];
+        auto& phase = wowPhase_[static_cast<size_t> (ch)];
+
+        for (int n = 0; n < numSamples; ++n)
+        {
+            const auto dry = data[n];
+            const auto lfo = 0.5f + 0.5f * std::sin (phase + (ch == 1 ? 0.37f : 0.0f));
+            const auto fasterLfo = 0.5f + 0.5f * std::sin (phase * 2.0f);
+            phase += phaseInc;
+            if (phase > 2.0f * juce::MathConstants<float>::pi)
+                phase -= 2.0f * juce::MathConstants<float>::pi;
+
+            const auto chopThreshold = juce::jmap (chop, 0.08f, 0.72f);
+            const auto chopGate = fasterLfo > chopThreshold ? 1.0f : (1.0f - chop * sauce * 0.78f);
+            const auto movementGain = 1.0f - sauce * movementDepth * 0.56f * lfo;
+
+            const auto holdSamples = juce::jlimit (1, 96, static_cast<int> (std::round (1.0f + stutter * sauce * 95.0f)));
+            if ((holdState.phase % holdSamples) == 0)
+                holdState.heldSample = dry;
+            holdState.phase = (holdState.phase + 1) % holdSamples;
+
+            auto x = juce::jmap (stutter * sauce, dry, holdState.heldSample);
+            x *= movementGain * chopGate;
+
+            const auto movingFilter = juce::jlimit (0.0f, 1.0f, filter + (lfo - 0.5f) * movementDepth * sauce * 0.36f);
+            const auto cutoffHz = juce::jmap (movingFilter, 350.0f, 17000.0f);
+            const auto lpCoeff = std::exp (-2.0f * juce::MathConstants<float>::pi * cutoffHz / static_cast<float> (sampleRate_));
+            filterState = (1.0f - lpCoeff) * x + lpCoeff * filterState;
+
+            const auto saturated = std::tanh (filterState * (1.0f + sauce * 0.55f));
+            auto out = (dry * (1.0f - mix) + saturated * mix) * outputGain;
+            out = std::tanh (out * 1.35f) / std::tanh (1.35f);
+            data[n] = juce::jlimit (-1.0f, 1.0f, out);
+        }
+    }
+
+    if (bufferChannels >= 2 && totalNumInputChannels >= 2)
+    {
+        auto* left = buffer.getWritePointer (0);
+        auto* right = buffer.getWritePointer (1);
+        const auto sideGain = juce::jmap (width, 0.55f, 1.65f);
+
+        for (int n = 0; n < numSamples; ++n)
+        {
+            const auto mid = 0.5f * (left[n] + right[n]);
+            const auto side = 0.5f * (left[n] - right[n]) * sideGain;
+            left[n] = juce::jlimit (-1.0f, 1.0f, mid + side);
+            right[n] = juce::jlimit (-1.0f, 1.0f, mid - side);
+        }
+    }
+    return;
+#else
     const auto driveGain = juce::Decibels::decibelsToGain (driveDb);
     const auto outputGain = juce::Decibels::decibelsToGain (outputDb);
     const auto driveComp = juce::Decibels::decibelsToGain (-0.35f * driveDb * mix);
@@ -182,6 +288,7 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             data[n] = juce::jlimit (-1.0f, 1.0f, out);
         }
     }
+#endif
 }
 
 juce::AudioProcessorEditor* SauceBoxAudioProcessor::createEditor()
@@ -207,8 +314,12 @@ juce::VST3ClientExtensions* SauceBoxAudioProcessor::getVST3ClientExtensions()
 std::vector<juce::String> SauceBoxAudioProcessor::getCompatibleClasses() const
 {
     // Legacy Sauce Box VST3 processor/controller IDs retained after the Hot Packet display rename.
+   #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    return {};
+   #else
     return { "56535453426F78736175636520626F",
              "56534553426F78736175636520626F" };
+   #endif
 }
 
 bool SauceBoxAudioProcessor::acceptsMidi() const
@@ -300,7 +411,7 @@ void SauceBoxAudioProcessor::setCurrentProgramForUi (int index)
 const juce::String SauceBoxAudioProcessor::getProgramName (int index)
 {
     juce::ignoreUnused (index);
-    return hot_packet::manifest.productName;
+    return active_product::manifest.productName;
 }
 
 void SauceBoxAudioProcessor::changeProgramName (int index, const juce::String& newName)
@@ -343,6 +454,42 @@ SauceBoxAudioProcessor::APVTS::ParameterLayout SauceBoxAudioProcessor::createPar
 {
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
 
+#if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramInstantSauce, 1 }, "Sauce",
+        juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 50.0f));
+
+    params.push_back (std::make_unique<juce::AudioParameterChoice> (
+        juce::ParameterID { paramFlavor, 1 }, "Flavor",
+        juce::StringArray { "Self Sample", "Vocal Chop", "Reverse Pull", "Stutter Step",
+                            "Tape Wobble", "Dirty Dream", "Drip Throw", "Half-Time Melt",
+                            "Formant Ghost", "Hook Maker", "Dark R&B", "Trap Motion" },
+        0));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramDrive, 1 }, "Movement Rate", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.34f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramCrush, 1 }, "Movement Depth", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.42f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramWowDepth, 1 }, "Chop", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.12f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramWowRate, 1 }, "Stutter", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.08f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramTone, 1 }, "Filter", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.58f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramWidth, 1 }, "Width", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.62f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramMix, 1 }, "Mix", juce::NormalisableRange<float> (0.0f, 1.0f, 0.001f), 0.64f));
+
+    params.push_back (std::make_unique<juce::AudioParameterFloat> (
+        juce::ParameterID { paramOutput, 1 }, "Output", juce::NormalisableRange<float> (-18.0f, 12.0f, 0.1f), -1.0f));
+#else
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { paramDrive, 1 }, "Drive", juce::NormalisableRange<float> (0.0f, 30.0f, 0.1f), 10.0f));
 
@@ -367,6 +514,7 @@ SauceBoxAudioProcessor::APVTS::ParameterLayout SauceBoxAudioProcessor::createPar
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { paramInstantSauce, 1 }, "Instant Sauce",
         juce::NormalisableRange<float> (0.0f, 100.0f, 0.1f), 50.0f));
+#endif
 
     return { params.begin(), params.end() };
 }

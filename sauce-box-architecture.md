@@ -48,16 +48,21 @@ processor/editor code.
 
 # Product Strategy
 
+Updated direction: Secret Sauce is the flagship paid product. Hot Packet remains
+the entry texture product and free lead magnet.
+
 Customers see individual plugins:
 
+- Secret Sauce
 - Hot Packet
-- Smoky Packet
-- Sweet Packet
-- Drip Packet
-- Chop Packet
-- Crunch Packet
+- Sweet Sauce
+- Thick Sauce
+- Glue Sauce
+- Drip Sauce
+- Extra Sauce
+- Light Sauce
 
-Each packet has:
+Each sauce/plugin has:
 
 - Its own plugin binary
 - Its own installer
@@ -66,16 +71,43 @@ Each packet has:
 - Its own branding
 - Its own license SKU
 
-Premium product:
+The current product lineup and planned IDs are tracked in `PRODUCT_LINEUP.md`.
+
+Hot Packet currently keeps its legacy bundle/plugin identity so existing installs
+and sessions continue to resolve. New products start with clean 808Bytes IDs.
+
+Flagship paid product:
+
+## Secret Sauce
+
+Secret Sauce is a creative movement and effects plugin for producers who sample
+themselves, chop vocals, flip loops, and add rhythmic movement or ear candy.
+
+V1 module direction:
+
+- Tempo-sync movement
+- Random modulation
+- Pitch/formant motion
+- Chop/stutter buffer
+- Reverse/grab buffer
+- Filter motion
+- Width and throw effects
+- Output safety
+
+Premium bundle:
 
 ## Sauce Box
 
-Sauce Box contains every current packet in one premium plugin.
+Sauce Box contains every current sauce in one premium plugin.
 
 Users can either:
 
-- Buy individual packets at a low price
-- Buy Sauce Box as the full premium product
+- Buy any sauce as an individual plugin
+- Buy Sauce Box as the full-suite premium product
+
+Secret Sauce is the lead seller and highest-priority next build, but the other
+flavors remain standalone products with their own pricing, IDs, installers,
+presets, branding, and license SKUs.
 
 The customer never needs to know that the products share internal code.
 
@@ -143,15 +175,15 @@ Source/
       HotPacketPresets.h
       HotPacketTheme.h
 
-    SmokyPacket/
-      SmokyPacketManifest.h
-      SmokyPacketPresets.h
-      SmokyPacketTheme.h
+    SecretSauce/
+      SecretSauceManifest.h
+      SecretSaucePresets.h
+      SecretSauceTheme.h
 
-    SweetPacket/
-      SweetPacketManifest.h
-      SweetPacketPresets.h
-      SweetPacketTheme.h
+    SweetSauce/
+      SweetSauceManifest.h
+      SweetSaucePresets.h
+      SweetSauceTheme.h
 
     SauceBox/
       SauceBoxManifest.h
@@ -201,7 +233,7 @@ struct ProductManifest
 };
 ```
 
-Hot Packet V1 would map to:
+Hot Packet V1 maps to:
 
 ```text
 Product ID: hot-packet
@@ -219,10 +251,24 @@ Sauce Box would map to:
 Product ID: sauce-box
 Product Name: Sauce Box
 License SKU: sauce-box
-Modules: all current packet modules
+Modules: all current sauce modules
 Free controls: none, unless a demo mode is desired
 Pro controls: all available modules
 CTA: optional
+```
+
+Secret Sauce V1 maps to:
+
+```text
+Product ID: secret-sauce
+Product Name: Secret Sauce
+License SKU: secret-sauce-pro
+Modules: motion, pitch/formant, stutter, reverse/grab, filter, width, throw, mix-output
+Demo controls: Sauce, Flavor, Mix, Output
+Pro controls: Movement Rate, Movement Depth, Swing, Random, Pitch, Formant, Chop,
+Stutter, Reverse, Filter, Width, Mix, Output
+Performance buttons: Freeze, Reverse, Repeat, Dropout, Tape Stop, Throw
+CTA: Track Review
 ```
 
 ---
@@ -238,13 +284,13 @@ Hot Packet.vst3
 Hot Packet.component
 Hot Packet.app
 
-Smoky Packet.vst3
-Smoky Packet.component
-Smoky Packet.app
+Secret Sauce.vst3
+Secret Sauce.component
+Secret Sauce.app
 
-Sweet Packet.vst3
-Sweet Packet.component
-Sweet Packet.app
+Sweet Sauce.vst3
+Sweet Sauce.component
+Sweet Sauce.app
 
 Sauce Box.vst3
 Sauce Box.component
@@ -255,10 +301,19 @@ Implementation options:
 
 ## Near-Term
 
-Keep one CMake target for Hot Packet while the product platform is extracted.
+Keep Hot Packet stable while the product platform is extracted.
 
 This is the lowest-risk path because the current product can keep shipping while
 the internals improve.
+
+Current implementation:
+
+- `SauceBox` target builds Hot Packet with legacy IDs.
+- `SecretSauce` target builds Secret Sauce with its own IDs.
+- Both targets share processor/editor code through compile-time product
+  selection.
+- Secret Sauce has engine v0 for movement, chop, stutter-style hold, filter
+  motion, width, mix, and output safety.
 
 ## Mid-Term
 
@@ -336,7 +391,7 @@ Output
 
 Sauce Box can later become either:
 
-1. A rack where users combine packet modules, or
+1. A rack where users combine sauce modules, or
 2. A premium all-in-one plugin with curated macro pages.
 
 That decision should be made before Sauce Box UI work starts because it affects
@@ -375,7 +430,7 @@ global.mix
 global.output
 ```
 
-If Sauce Box contains multiple packet modules, scoped IDs become mandatory.
+If Sauce Box contains multiple sauce modules, scoped IDs become mandatory.
 
 ---
 
@@ -435,7 +490,7 @@ Hot Packet V1:
 Sauce Box:
 
 - Owns a separate `sauce-box` SKU.
-- Unlocks all included packet modules inside Sauce Box.
+- Unlocks all included sauce modules inside Sauce Box.
 - Does not automatically need to unlock separate packet plugin binaries unless
   the business model explicitly says it does.
 
@@ -568,18 +623,18 @@ Use audio snapshot tests or rendered comparison files before and after the split
 Replace the single hardcoded `juce_add_plugin` block with a helper that can
 create one target per product.
 
-Start with Hot Packet only.
+Started with Hot Packet, then added Secret Sauce as the first second target.
 
 Then add a second internal product target to prove the architecture before
 building the whole ecosystem.
 
-## Phase 5: Build the Next Packet
+## Phase 5: Build Secret Sauce
 
-Build one new packet from the shared system.
+Build Secret Sauce from the shared system because it is the main paid seller.
+Build it after the shared product catalog and reusable DSP boundaries are in
+place.
 
-Recommended next product: Smoky Packet or Sweet Packet.
-
-Do not start Sauce Box until at least two packet products share the platform.
+Do not start Sauce Box until at least two sauce products share the platform.
 Sauce Box should prove aggregation, not be the first test of the architecture.
 
 ## Phase 6: Build Sauce Box

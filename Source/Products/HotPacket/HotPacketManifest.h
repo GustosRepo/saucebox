@@ -10,6 +10,9 @@ struct ProductManifest
     const char* productName;
     const char* displayTitle;
     const char* companyName;
+    const char* bundleId;
+    const char* manufacturerCode;
+    const char* pluginCode;
     const char* licenseSku;
     const char* trackReviewUrl;
     bool exposesFreeMode;
@@ -39,6 +42,9 @@ inline constexpr ProductManifest manifest {
     "Hot Packet",
     "HOT PACKET",
     "808Bytes",
+    "com.saucebox.plugin",
+    "SaBx",
+    "SBox",
     "hot-packet-pro",
     "https://saucebox.audio/review",
     true,

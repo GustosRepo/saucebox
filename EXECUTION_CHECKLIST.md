@@ -1,5 +1,23 @@
 # Hot Packet Execution Checklist (Based on PRODUCT_REQUIREMENTS)
 
+## Product Pivot - Secret Sauce Flagship
+
+- [x] Document Secret Sauce as the main paid product. (`SECRET_SAUCE_PRODUCT_STRATEGY.md`)
+- [x] Keep Hot Packet positioned as the free/entry texture product.
+- [x] Scaffold Secret Sauce manifest, theme, and preset recipes.
+- [x] Add a product catalog that includes every planned single flavor and the Sauce Box suite.
+- [x] Scaffold manifests/themes/preset banks for Sweet Sauce, Thick Sauce, Glue Sauce, Drip Sauce, Extra Sauce, Light Sauce, and Sauce Box.
+- [x] Document single-product SKUs, bundle IDs, and plugin codes. (`PRODUCT_LINEUP.md`)
+- [x] Add reusable CMake helper for multiple sauce product targets.
+- [x] Add dedicated Secret Sauce AU/VST3/Standalone target with unique bundle/plugin IDs.
+- [x] Add compile-time active-product selection for Hot Packet vs Secret Sauce branding/presets.
+- [x] Replace Secret Sauce placeholder DSP with engine v0: movement, chop, stutter-style hold, filter motion, width, mix/output safety.
+- [ ] Extract shared DSP modules needed by both products.
+- [ ] Build Secret Sauce advanced engine modules: tempo sync, random modulation, pitch/formant, reverse/grab, throw effects, tape stop.
+- [ ] Build Secret Sauce UI around Sauce, Flavor, Mix, Output, Pro controls, and performance buttons.
+- [ ] Add separate plugin targets and unique IDs for each single sauce product.
+- [ ] Add Sauce Box suite target that includes all sauce modules.
+
 ## How to use this
 
 - Work top to bottom.
