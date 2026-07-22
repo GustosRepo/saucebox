@@ -12,9 +12,11 @@
 - [x] Add dedicated Secret Sauce AU/VST3/Standalone target with unique bundle/plugin IDs.
 - [x] Add compile-time active-product selection for Hot Packet vs Secret Sauce branding/presets.
 - [x] Replace Secret Sauce placeholder DSP with engine v0: movement, chop, stutter-style hold, filter motion, width, mix/output safety.
+- [x] Add first-pass Secret Sauce performance buttons: Freeze, Reverse, Repeat, Dropout, Tape Stop, Throw.
+- [x] Add Secret Sauce UI row for Sauce, Flavor, Mix, Output, Pro controls, and performance buttons.
 - [ ] Extract shared DSP modules needed by both products.
-- [ ] Build Secret Sauce advanced engine modules: tempo sync, random modulation, pitch/formant, reverse/grab, throw effects, tape stop.
-- [ ] Build Secret Sauce UI around Sauce, Flavor, Mix, Output, Pro controls, and performance buttons.
+- [ ] Build Secret Sauce advanced engine modules: tempo sync, random modulation, pitch/formant, deeper reverse/grab, synced throw effects, refined tape stop.
+- [ ] Replace Secret Sauce packet-style UI with a dedicated flagship visual system.
 - [ ] Add separate plugin targets and unique IDs for each single sauce product.
 - [ ] Add Sauce Box suite target that includes all sauce modules.
 

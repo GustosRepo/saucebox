@@ -141,5 +141,7 @@ The first engineering step is product scaffolding:
 3. Add a dedicated Secret Sauce build target with unique AU/VST3 identity. Done.
 4. Add engine v0: Sauce macro, movement, chop, stutter-style hold, filter
    motion, width, mix, output safety. Done.
-5. Move shared DSP into reusable modules before adding the advanced Secret Sauce
-   movement engine.
+5. Add first-pass performance buttons: Freeze, Reverse, Repeat, Dropout, Tape
+   Stop, and Throw. Done.
+6. Move shared DSP into reusable modules before deepening the advanced Secret
+   Sauce movement engine.

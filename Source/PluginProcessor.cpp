@@ -17,6 +17,12 @@ constexpr auto paramOutput = secret_sauce::parameters::output;
 constexpr auto paramInstantSauce = secret_sauce::parameters::sauce;
 constexpr auto paramFlavor = secret_sauce::parameters::flavor;
 constexpr auto paramWidth = secret_sauce::parameters::width;
+constexpr auto paramFreeze = secret_sauce::performance::freeze;
+constexpr auto paramReverseMomentary = secret_sauce::performance::reverse;
+constexpr auto paramRepeat = secret_sauce::performance::repeat;
+constexpr auto paramDropout = secret_sauce::performance::dropout;
+constexpr auto paramTapeStop = secret_sauce::performance::tapeStop;
+constexpr auto paramThrowFx = secret_sauce::performance::throwFx;
 constexpr auto stateProgramIndex = hot_packet::state::programIndex;
 #else
 constexpr auto paramDrive = hot_packet::parameters::drive;
@@ -127,6 +133,9 @@ void SauceBoxAudioProcessor::prepareToPlay (double sampleRate, int)
 
     toneState_.fill (0.0f);
     wowPhase_.fill (0.0f);
+    secretDelayWritePosition_ = 0;
+    secretDelayBuffer_.setSize (2, juce::jmax (1, static_cast<int> (sampleRate_ * 2.0)));
+    secretDelayBuffer_.clear();
     isPrepared_ = true;
 }
 
@@ -175,13 +184,26 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     const auto stutter = wowRate;
     const auto filter = tone;
     const auto width = apvts.getRawParameterValue (paramWidth)->load();
+    const auto freezeOn = apvts.getRawParameterValue (paramFreeze)->load() > 0.5f;
+    const auto reverseOn = apvts.getRawParameterValue (paramReverseMomentary)->load() > 0.5f;
+    const auto repeatOn = apvts.getRawParameterValue (paramRepeat)->load() > 0.5f;
+    const auto dropoutOn = apvts.getRawParameterValue (paramDropout)->load() > 0.5f;
+    const auto tapeStopOn = apvts.getRawParameterValue (paramTapeStop)->load() > 0.5f;
+    const auto throwOn = apvts.getRawParameterValue (paramThrowFx)->load() > 0.5f;
     const auto outputGain = juce::Decibels::decibelsToGain (outputDb);
     const auto phaseInc = 2.0f * juce::MathConstants<float>::pi * movementRateHz / static_cast<float> (sampleRate_);
     const auto channelsToProcess = juce::jmin (bufferChannels, totalNumInputChannels, static_cast<int> (crushStates_.size()));
+    const auto delayBufferSamples = secretDelayBuffer_.getNumSamples();
+    const auto delayWriteStart = secretDelayWritePosition_;
+    const auto throwDelaySamples = juce::jlimit (1, delayBufferSamples - 1,
+                                                 static_cast<int> (0.24f * static_cast<float> (sampleRate_)));
+    const auto reverseWindowSamples = juce::jlimit (1, delayBufferSamples - 1,
+                                                   static_cast<int> ((0.12f + sauce * 0.28f) * static_cast<float> (sampleRate_)));
 
     for (int ch = 0; ch < channelsToProcess; ++ch)
     {
         auto* data = buffer.getWritePointer (ch);
+        auto* delayData = secretDelayBuffer_.getWritePointer (ch);
         auto& holdState = crushStates_[static_cast<size_t> (ch)];
         auto& filterState = toneState_[static_cast<size_t> (ch)];
         auto& phase = wowPhase_[static_cast<size_t> (ch)];
@@ -191,31 +213,50 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             const auto dry = data[n];
             const auto lfo = 0.5f + 0.5f * std::sin (phase + (ch == 1 ? 0.37f : 0.0f));
             const auto fasterLfo = 0.5f + 0.5f * std::sin (phase * 2.0f);
+            const auto writePosition = (delayWriteStart + n) % delayBufferSamples;
+            const auto throwReadPosition = (writePosition + delayBufferSamples - throwDelaySamples) % delayBufferSamples;
+            const auto reverseReadPosition = (writePosition + delayBufferSamples - 1 - (n % reverseWindowSamples)) % delayBufferSamples;
+            const auto throwSample = delayData[throwReadPosition];
+            const auto reverseSample = delayData[reverseReadPosition];
             phase += phaseInc;
             if (phase > 2.0f * juce::MathConstants<float>::pi)
                 phase -= 2.0f * juce::MathConstants<float>::pi;
 
             const auto chopThreshold = juce::jmap (chop, 0.08f, 0.72f);
             const auto chopGate = fasterLfo > chopThreshold ? 1.0f : (1.0f - chop * sauce * 0.78f);
+            const auto dropoutGate = (! dropoutOn || fasterLfo > 0.38f) ? 1.0f : 0.0f;
             const auto movementGain = 1.0f - sauce * movementDepth * 0.56f * lfo;
 
-            const auto holdSamples = juce::jlimit (1, 96, static_cast<int> (std::round (1.0f + stutter * sauce * 95.0f)));
+            const auto holdSamples = freezeOn ? juce::jlimit (128, 4096, static_cast<int> (sampleRate_ * 0.08))
+                                              : juce::jlimit (1, 96, static_cast<int> (std::round (1.0f + stutter * sauce * (repeatOn ? 180.0f : 95.0f))));
             if ((holdState.phase % holdSamples) == 0)
                 holdState.heldSample = dry;
             holdState.phase = (holdState.phase + 1) % holdSamples;
 
-            auto x = juce::jmap (stutter * sauce, dry, holdState.heldSample);
-            x *= movementGain * chopGate;
+            auto x = juce::jmap (juce::jlimit (0.0f, 1.0f, stutter * sauce + (repeatOn ? 0.35f : 0.0f)), dry, holdState.heldSample);
+
+            if (reverseOn)
+                x = juce::jmap (0.72f, x, reverseSample);
+
+            x *= movementGain * chopGate * dropoutGate;
 
             const auto movingFilter = juce::jlimit (0.0f, 1.0f, filter + (lfo - 0.5f) * movementDepth * sauce * 0.36f);
-            const auto cutoffHz = juce::jmap (movingFilter, 350.0f, 17000.0f);
+            const auto cutoffHz = juce::jmap (movingFilter * (tapeStopOn ? 0.42f : 1.0f), 250.0f, 17000.0f);
             const auto lpCoeff = std::exp (-2.0f * juce::MathConstants<float>::pi * cutoffHz / static_cast<float> (sampleRate_));
             filterState = (1.0f - lpCoeff) * x + lpCoeff * filterState;
 
-            const auto saturated = std::tanh (filterState * (1.0f + sauce * 0.55f));
+            auto saturated = std::tanh (filterState * (1.0f + sauce * 0.55f));
+            if (throwOn)
+                saturated = juce::jlimit (-1.0f, 1.0f, saturated + throwSample * 0.46f);
+
             auto out = (dry * (1.0f - mix) + saturated * mix) * outputGain;
+            if (tapeStopOn)
+                out *= 0.72f - 0.28f * lfo;
+
             out = std::tanh (out * 1.35f) / std::tanh (1.35f);
             data[n] = juce::jlimit (-1.0f, 1.0f, out);
+
+            delayData[writePosition] = juce::jlimit (-1.0f, 1.0f, out + throwSample * (throwOn ? 0.42f : 0.18f));
         }
     }
 
@@ -233,6 +274,8 @@ void SauceBoxAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
             right[n] = juce::jlimit (-1.0f, 1.0f, mid - side);
         }
     }
+
+    secretDelayWritePosition_ = (delayWriteStart + numSamples) % delayBufferSamples;
     return;
 #else
     const auto driveGain = juce::Decibels::decibelsToGain (driveDb);
@@ -489,6 +532,24 @@ SauceBoxAudioProcessor::APVTS::ParameterLayout SauceBoxAudioProcessor::createPar
 
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { paramOutput, 1 }, "Output", juce::NormalisableRange<float> (-18.0f, 12.0f, 0.1f), -1.0f));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramFreeze, 1 }, "Freeze", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramReverseMomentary, 1 }, "Reverse", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramRepeat, 1 }, "Repeat", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramDropout, 1 }, "Dropout", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramTapeStop, 1 }, "Tape Stop", false));
+
+    params.push_back (std::make_unique<juce::AudioParameterBool> (
+        juce::ParameterID { paramThrowFx, 1 }, "Throw", false));
 #else
     params.push_back (std::make_unique<juce::AudioParameterFloat> (
         juce::ParameterID { paramDrive, 1 }, "Drive", juce::NormalisableRange<float> (0.0f, 30.0f, 0.1f), 10.0f));

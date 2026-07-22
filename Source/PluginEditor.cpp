@@ -15,6 +15,12 @@ constexpr auto paramMix = secret_sauce::parameters::mix;
 constexpr auto paramOutput = secret_sauce::parameters::output;
 constexpr auto paramInstantSauce = secret_sauce::parameters::sauce;
 constexpr auto paramWidth = secret_sauce::parameters::width;
+constexpr auto paramFreeze = secret_sauce::performance::freeze;
+constexpr auto paramReverseMomentary = secret_sauce::performance::reverse;
+constexpr auto paramRepeat = secret_sauce::performance::repeat;
+constexpr auto paramDropout = secret_sauce::performance::dropout;
+constexpr auto paramTapeStop = secret_sauce::performance::tapeStop;
+constexpr auto paramThrowFx = secret_sauce::performance::throwFx;
 #else
 constexpr auto paramDrive = hot_packet::parameters::drive;
 constexpr auto paramCrush = hot_packet::parameters::texture;
@@ -446,6 +452,29 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
         label->setInterceptsMouseClicks (false, false);
     }
 
+   #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    setupPerformanceButton (freezeButton, "Freeze");
+    setupPerformanceButton (reverseButton, "Reverse");
+    setupPerformanceButton (repeatButton, "Repeat");
+    setupPerformanceButton (dropoutButton, "Dropout");
+    setupPerformanceButton (tapeStopButton, "Stop");
+    setupPerformanceButton (throwButton, "Throw");
+
+    freezeButton.setTooltip ("Holds short slices for a frozen texture.");
+    reverseButton.setTooltip ("Pulls from the recent buffer for reverse-style movement.");
+    repeatButton.setTooltip ("Pushes the stutter hold harder.");
+    dropoutButton.setTooltip ("Adds rhythmic dropouts.");
+    tapeStopButton.setTooltip ("Darkens and dips the motion like a tape stop gesture.");
+    throwButton.setTooltip ("Adds a feedback throw from the recent buffer.");
+
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramFreeze, freezeButton));
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramReverseMomentary, reverseButton));
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramRepeat, repeatButton));
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramDropout, dropoutButton));
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramTapeStop, tapeStopButton));
+    buttonAttachments.emplace_back (std::make_unique<ButtonAttachment> (processorRef.apvts, paramThrowFx, throwButton));
+   #endif
+
     refreshPresetDropdownFromParams();
 }
 
@@ -597,7 +626,13 @@ void SauceBoxAudioProcessorEditor::resized()
         instantSauceSlider.setBounds (knobArea.reduced (6, 2));
     }
 
-    auto freeRow = area.removeFromTop (74);
+    auto freeRow = area.removeFromTop (
+       #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+        62
+       #else
+        74
+       #endif
+    );
     {
         const int knobW = freeRow.getWidth() / 3;
         auto centredRow = freeRow.withSizeKeepingCentre (knobW * 2, freeRow.getHeight());
@@ -613,6 +648,21 @@ void SauceBoxAudioProcessorEditor::resized()
     }
 
     area.removeFromTop (4);
+
+   #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    auto performanceRow = area.removeFromTop (38).reduced (12, 4);
+    {
+        const int buttonW = performanceRow.getWidth() / 6;
+        freezeButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
+        reverseButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
+        repeatButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
+        dropoutButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
+        tapeStopButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
+        throwButton.setBounds (performanceRow.reduced (3, 1));
+    }
+
+    area.removeFromTop (2);
+   #endif
 
     auto proPanel = area.reduced (22, 0);
     proRowBounds_ = proPanel;
@@ -718,4 +768,15 @@ void SauceBoxAudioProcessorEditor::setupKnob (juce::Slider& slider, juce::Label&
 
     addAndMakeVisible (slider);
     addAndMakeVisible (label);
+}
+
+void SauceBoxAudioProcessorEditor::setupPerformanceButton (juce::TextButton& button, const juce::String& labelText)
+{
+    button.setButtonText (labelText);
+    button.setClickingTogglesState (true);
+    button.setColour (juce::TextButton::buttonColourId, packetCream.withAlpha (0.86f));
+    button.setColour (juce::TextButton::buttonOnColourId, packetYellow);
+    button.setColour (juce::TextButton::textColourOffId, packetInk);
+    button.setColour (juce::TextButton::textColourOnId, packetInk);
+    addAndMakeVisible (button);
 }

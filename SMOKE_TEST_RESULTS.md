@@ -21,19 +21,25 @@ Status: PASS
 13. `auval -v aufx SeSc EByt` passed for Secret Sauce.
 14. Secret Sauce AU published 10 parameters: Sauce, Flavor, Movement Rate, Movement Depth, Chop, Stutter, Filter, Width, Mix, Output.
 15. Secret Sauce AU render tests passed at 512, 64, 137, and 4096 frame buffers and at 11025, 22050, 44100, 48000, 96000, and 192000 Hz.
+16. Added first-pass Secret Sauce performance buttons: Freeze, Reverse, Repeat, Dropout, Tape Stop, and Throw.
+17. Release build completed successfully after performance-button DSP/UI changes.
+18. Codesign verification passed for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+19. `auval -v aufx SeSc EByt` passed for Secret Sauce after the performance-button pass.
+20. Secret Sauce AU now publishes 16 parameters, including the six performance buttons.
+21. `auval -v aufx SBox SaBx` passed for Hot Packet after the shared-code changes.
 
 ### Notes
 
 - This is a compile/build validation only.
 - Secret Sauce has its own plugin target and identity.
-- Secret Sauce engine v0 is intentionally simple; it does not yet include tempo sync, pitch/formant, reverse/grab, throw effects, or tape stop.
+- Secret Sauce engine v0 is intentionally simple. It now includes first-pass performance gestures, but tempo sync, pitch/formant, deeper reverse/grab, throw timing, and refined tape-stop behavior still need listening-driven iteration.
 - The other single products now have metadata scaffolds, but do not have dedicated plugin targets or DSP engines yet.
 - The build used the existing `COPY_PLUGIN_AFTER_BUILD` behavior and installed/overwrote Hot Packet and Secret Sauce AU/VST3 artifacts in the user plugin folders.
 
 ### Remaining validation
 
 1. Validate Secret Sauce engine v0 in a DAW on real self-sampled vocals/loops.
-2. Replace Secret Sauce locked-control layout with dedicated Sauce, Flavor, Mix, Output, Pro controls, and performance buttons.
+2. Replace the packet-style Secret Sauce interface with a dedicated flagship visual system.
 3. Add dedicated targets for Sweet Sauce, Thick Sauce, Glue Sauce, Drip Sauce, Extra Sauce, Light Sauce, and Sauce Box.
 4. Run DAW testing after the Secret Sauce UI and engine exist.
 

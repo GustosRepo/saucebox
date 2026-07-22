@@ -15,6 +15,7 @@ public:
 
 private:
     using SliderAttachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+    using ButtonAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     class PacketLookAndFeel : public juce::LookAndFeel_V4
     {
@@ -44,6 +45,12 @@ private:
     juce::ComboBox presetBox;
     juce::Label ctaLabel;
     juce::TextButton ctaButton;
+    juce::TextButton freezeButton;
+    juce::TextButton reverseButton;
+    juce::TextButton repeatButton;
+    juce::TextButton dropoutButton;
+    juce::TextButton tapeStopButton;
+    juce::TextButton throwButton;
 
     juce::Slider driveSlider;
     juce::Slider crushSlider;
@@ -70,8 +77,10 @@ private:
     bool isUpdatingInstantSauceFromPreset_ = false;
 
     std::vector<std::unique_ptr<SliderAttachment>> attachments;
+    std::vector<std::unique_ptr<ButtonAttachment>> buttonAttachments;
 
     void setupKnob (juce::Slider& slider, juce::Label& label, const juce::String& labelText);
+    void setupPerformanceButton (juce::TextButton& button, const juce::String& labelText);
     void applyInstantSauceMacro (float value);
     void syncInstantSauceSliderFromPreset (int presetIndex);
     void refreshPresetDropdownFromParams();
