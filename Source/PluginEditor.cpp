@@ -2,6 +2,7 @@
 #include "Products/HotPacket/HotPacketManifest.h"
 #include "Products/HotPacket/HotPacketTheme.h"
 #include "Products/ActiveProduct.h"
+#include "BinaryData.h"
 
 namespace
 {
@@ -31,7 +32,7 @@ constexpr auto paramMix = hot_packet::parameters::mix;
 constexpr auto paramOutput = hot_packet::parameters::output;
 constexpr auto paramInstantSauce = hot_packet::parameters::instantSauce;
 #endif
-constexpr auto trackReviewUrl = active_product::manifest.trackReviewUrl;
+constexpr auto websiteUrl = active_product::manifest.websiteUrl;
 
 const auto& packetRed = active_product::theme::packetRed;
 const auto& packetOrange = active_product::theme::packetOrange;
@@ -39,6 +40,35 @@ const auto& packetYellow = active_product::theme::packetYellow;
 const auto& packetCream = active_product::theme::packetCream;
 const auto& packetInk = active_product::theme::packetInk;
 const auto& packetPurple = active_product::theme::packetPurple;
+
+struct BackgroundAsset
+{
+    const void* data = nullptr;
+    int size = 0;
+};
+
+BackgroundAsset getActiveBackgroundAsset()
+{
+   #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+    return { BinaryData::secretsauce_png, BinaryData::secretsauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_SWEET_SAUCE)
+    return { BinaryData::sweetsauce_png, BinaryData::sweetsauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_THICK_SAUCE)
+    return { BinaryData::thicksauce_png, BinaryData::thicksauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_GLUE_SAUCE)
+    return { BinaryData::gluesauce_png, BinaryData::gluesauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_DRIP_SAUCE)
+    return { BinaryData::dripsauce_png, BinaryData::dripsauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_EXTRA_SAUCE)
+    return { BinaryData::extrasauce_png, BinaryData::extrasauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_LIGHT_SAUCE)
+    return { BinaryData::lightsauce_png, BinaryData::lightsauce_pngSize };
+   #elif defined (SAUCE_PRODUCT_SUITE)
+    return { BinaryData::saucebox_png, BinaryData::saucebox_pngSize };
+   #else
+    return { BinaryData::hotsauce_png, BinaryData::hotsauce_pngSize };
+   #endif
+}
 
 juce::Path createPacketPath (juce::Rectangle<float> r)
 {
@@ -120,6 +150,27 @@ void drawPacketCopy (juce::Graphics& g, juce::Rectangle<float> packetBounds)
     g.restoreState();
 
 }
+
+void drawGlassPanel (juce::Graphics& g,
+                     juce::Rectangle<int> bounds,
+                     float cornerRadius,
+                     float fillAlpha,
+                     float borderAlpha)
+{
+    if (bounds.isEmpty())
+        return;
+
+    const auto rect = bounds.toFloat();
+
+    g.setColour (packetInk.withAlpha (0.14f));
+    g.fillRoundedRectangle (rect.translated (0.0f, 2.0f), cornerRadius);
+
+    g.setColour (packetInk.withAlpha (fillAlpha));
+    g.fillRoundedRectangle (rect, cornerRadius);
+
+    g.setColour (packetCream.withAlpha (borderAlpha));
+    g.drawRoundedRectangle (rect, cornerRadius, 0.9f);
+}
 }
 
 SauceBoxAudioProcessorEditor::PacketLookAndFeel::PacketLookAndFeel()
@@ -131,12 +182,12 @@ SauceBoxAudioProcessorEditor::PacketLookAndFeel::PacketLookAndFeel()
     setColour (juce::Slider::textBoxBackgroundColourId, packetInk.withAlpha (0.72f));
     setColour (juce::Slider::textBoxOutlineColourId, packetCream.withAlpha (0.7f));
 
-    setColour (juce::ComboBox::backgroundColourId, packetCream);
-    setColour (juce::ComboBox::textColourId, packetInk);
-    setColour (juce::ComboBox::outlineColourId, packetInk);
-    setColour (juce::ComboBox::arrowColourId, packetRed);
-    setColour (juce::PopupMenu::backgroundColourId, packetCream);
-    setColour (juce::PopupMenu::textColourId, packetInk);
+    setColour (juce::ComboBox::backgroundColourId, packetInk);
+    setColour (juce::ComboBox::textColourId, packetCream);
+    setColour (juce::ComboBox::outlineColourId, packetCream.withAlpha (0.42f));
+    setColour (juce::ComboBox::arrowColourId, packetYellow);
+    setColour (juce::PopupMenu::backgroundColourId, packetInk);
+    setColour (juce::PopupMenu::textColourId, packetCream);
 }
 
 void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawRotarySlider (juce::Graphics& g,
@@ -211,11 +262,11 @@ void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawComboBox (juce::Graphi
                                           static_cast<float> (width) - 1.0f,
                                           static_cast<float> (height) - 1.0f);
 
-    g.setColour ((isButtonDown ? packetYellow : packetCream).withAlpha (0.98f));
+    g.setColour ((isButtonDown ? packetYellow.withAlpha (0.92f) : packetInk.withAlpha (0.86f)));
     g.fillRoundedRectangle (bounds, 9.0f);
 
-    g.setColour (packetInk);
-    g.drawRoundedRectangle (bounds, 9.0f, 2.0f);
+    g.setColour (packetCream.withAlpha (0.54f));
+    g.drawRoundedRectangle (bounds, 9.0f, 1.2f);
 
     const auto arrowBounds = bounds.removeFromRight (34.0f).reduced (9.0f, 10.0f);
     juce::Path arrow;
@@ -223,7 +274,7 @@ void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawComboBox (juce::Graphi
     arrow.lineTo (arrowBounds.getCentreX(), arrowBounds.getBottom());
     arrow.lineTo (arrowBounds.getRight(), arrowBounds.getY());
 
-    g.setColour (packetRed);
+    g.setColour (isButtonDown ? packetInk : packetYellow);
     g.strokePath (arrow, juce::PathStrokeType (3.0f, juce::PathStrokeType::curved,
                                                juce::PathStrokeType::rounded));
 }
@@ -243,7 +294,8 @@ void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonBackground (juce
                                                                            bool isDown)
 {
     auto bounds = button.getLocalBounds().toFloat().reduced (0.5f);
-    const auto fill = isDown ? packetYellow : (isHighlighted ? packetOrange.brighter (0.08f) : packetOrange);
+    const auto fill = isDown ? packetYellow.withAlpha (0.94f)
+                             : (isHighlighted ? packetInk.withAlpha (0.86f) : packetInk.withAlpha (0.72f));
 
     g.setColour (packetInk.withAlpha (0.32f));
     g.fillRoundedRectangle (bounds.translated (0.0f, 3.0f), 8.0f);
@@ -251,19 +303,19 @@ void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonBackground (juce
     g.setColour (fill);
     g.fillRoundedRectangle (bounds, 8.0f);
 
-    g.setColour (packetCream);
-    g.drawRoundedRectangle (bounds.reduced (2.0f), 6.0f, 1.1f);
+    g.setColour (packetCream.withAlpha (isHighlighted ? 0.74f : 0.46f));
+    g.drawRoundedRectangle (bounds.reduced (2.0f), 6.0f, 1.0f);
 
-    g.setColour (packetInk);
-    g.drawRoundedRectangle (bounds, 8.0f, 1.6f);
+    g.setColour (packetCream.withAlpha (0.20f));
+    g.drawRoundedRectangle (bounds, 8.0f, 1.2f);
 }
 
 void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonText (juce::Graphics& g,
                                                                       juce::TextButton& button,
                                                                       bool,
-                                                                      bool)
+                                                                      bool isDown)
 {
-    g.setColour (packetInk);
+    g.setColour (isDown ? packetInk : packetCream);
     g.setFont (juce::FontOptions (15.0f, juce::Font::bold));
     g.drawFittedText (button.getButtonText(), button.getLocalBounds().reduced (8, 2),
                       juce::Justification::centred, 1);
@@ -272,21 +324,26 @@ void SauceBoxAudioProcessorEditor::PacketLookAndFeel::drawButtonText (juce::Grap
 SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p), tooltipWindow (this, 700)
 {
-    setSize (720, 560);
     setLookAndFeel (&packetLookAndFeel);
+    loadBackgroundImage();
+    setSize (980, 560);
     processorRef.addChangeListener (this);
+
+    const auto usingBackgroundArtwork = backgroundImage_.isValid();
 
     // ---- Header ----
     titleLabel.setText (active_product::manifest.displayTitle, juce::dontSendNotification);
     titleLabel.setJustificationType (juce::Justification::centred);
     titleLabel.setFont (juce::FontOptions (54.0f, juce::Font::bold));
     titleLabel.setColour (juce::Label::textColourId, packetCream);
+    titleLabel.setVisible (! usingBackgroundArtwork);
     addAndMakeVisible (titleLabel);
 
     bylineLabel.setText (active_product::theme::byline, juce::dontSendNotification);
     bylineLabel.setJustificationType (juce::Justification::centred);
     bylineLabel.setColour (juce::Label::textColourId, packetYellow);
     bylineLabel.setFont (juce::FontOptions (16.0f, juce::Font::bold));
+    bylineLabel.setVisible (! usingBackgroundArtwork);
     addAndMakeVisible (bylineLabel);
 
     // ---- Preset row ----
@@ -316,14 +373,15 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
     ctaLabel.setJustificationType (juce::Justification::centredRight);
     ctaLabel.setColour (juce::Label::textColourId, packetCream);
     ctaLabel.setFont (juce::FontOptions (14.0f, juce::Font::bold));
+    ctaLabel.setVisible (! usingBackgroundArtwork);
     addAndMakeVisible (ctaLabel);
 
     ctaButton.setButtonText (active_product::theme::ctaButtonText);
     ctaButton.setColour (juce::TextButton::buttonColourId, packetOrange);
     ctaButton.setColour (juce::TextButton::buttonOnColourId, packetYellow);
     ctaButton.setColour (juce::TextButton::textColourOffId, packetInk);
-    ctaButton.setTooltip ("Open the 808Bytes track review page.");
-    ctaButton.onClick = [] { juce::URL (trackReviewUrl).launchInDefaultBrowser(); };
+    ctaButton.setTooltip ("Open 808bytes.com.");
+    ctaButton.onClick = [] { juce::URL (websiteUrl).launchInDefaultBrowser(); };
     addAndMakeVisible (ctaButton);
 
     // ---- Instant Sauce macro knob (Free) ----
@@ -448,7 +506,7 @@ SauceBoxAudioProcessorEditor::SauceBoxAudioProcessorEditor (SauceBoxAudioProcess
 
     for (auto* label : { &driveKnobLabel, &textureKnobLabel, &wowDepthKnobLabel, &wowRateKnobLabel, &toneKnobLabel })
     {
-        label->setAlpha (0.78f);
+        label->setAlpha (0.46f);
         label->setInterceptsMouseClicks (false, false);
     }
 
@@ -510,69 +568,112 @@ void SauceBoxAudioProcessorEditor::paint (juce::Graphics& g)
 
     auto packetBounds = getLocalBounds().toFloat().reduced (12.0f);
     auto packetPath = createPacketPath (packetBounds);
+    const auto usingBackgroundArtwork = backgroundImage_.isValid();
 
-    juce::ColourGradient packetGradient (packetOrange, packetBounds.getX(), packetBounds.getY(),
-                                         packetRed.darker (0.25f), packetBounds.getRight(),
-                                         packetBounds.getBottom(), false);
-    packetGradient.addColour (0.48, packetRed);
-
-    g.setGradientFill (packetGradient);
-    g.fillPath (packetPath);
-
-    g.setColour (packetInk.withAlpha (0.28f));
-    g.strokePath (packetPath, juce::PathStrokeType (9.0f));
-
-    g.setColour (packetCream);
-    g.strokePath (packetPath, juce::PathStrokeType (3.0f));
-
-    const auto innerPacket = packetBounds.reduced (13.0f);
-    g.setColour (packetCream.withAlpha (0.22f));
-    g.drawRoundedRectangle (innerPacket, 19.0f, 1.5f);
-
-    auto topCrimp = packetBounds.removeFromTop (48.0f).reduced (9.0f, 7.0f);
-    auto bottomCrimp = getLocalBounds().toFloat().reduced (21.0f).removeFromBottom (44.0f);
-
-    g.setColour (packetCream.withAlpha (0.28f));
-    g.fillRoundedRectangle (topCrimp, 13.0f);
-    g.fillRoundedRectangle (bottomCrimp, 13.0f);
-
-    g.setColour (packetInk.withAlpha (0.2f));
-    drawCrimpMarks (g, topCrimp);
-    drawCrimpMarks (g, bottomCrimp);
-
-    g.setColour (packetCream.withAlpha (0.24f));
-    drawSideSealMarks (g, getLocalBounds().toFloat().reduced (12.0f));
-
-    const auto tearY = 116.0f;
-    g.setColour (packetCream.withAlpha (0.75f));
-    for (float x = 72.0f; x < static_cast<float> (getWidth()) - 72.0f; x += 22.0f)
+    if (usingBackgroundArtwork)
     {
-        if ((x > 72.0f && x < 184.0f) || (x > 268.0f && x < 452.0f))
-            continue;
+        g.saveState();
+        g.reduceClipRegion (packetPath);
+        g.drawImageWithin (backgroundImage_, static_cast<int> (packetBounds.getX()),
+                           static_cast<int> (packetBounds.getY()),
+                           static_cast<int> (packetBounds.getWidth()),
+                           static_cast<int> (packetBounds.getHeight()),
+                           juce::RectanglePlacement::fillDestination, false);
+        g.restoreState();
 
-        g.fillRoundedRectangle (x, tearY, 11.0f, 2.0f, 1.0f);
+        juce::ColourGradient shade (packetInk.withAlpha (0.18f), packetBounds.getX(), packetBounds.getY(),
+                                    packetInk.withAlpha (0.04f), packetBounds.getRight(), packetBounds.getCentreY(),
+                                    false);
+        shade.addColour (1.0, packetInk.withAlpha (0.30f));
+        g.setGradientFill (shade);
+        g.fillPath (packetPath);
+    }
+    else
+    {
+        juce::ColourGradient packetGradient (packetOrange, packetBounds.getX(), packetBounds.getY(),
+                                             packetRed.darker (0.25f), packetBounds.getRight(),
+                                             packetBounds.getBottom(), false);
+        packetGradient.addColour (0.48, packetRed);
+
+        g.setGradientFill (packetGradient);
+        g.fillPath (packetPath);
+
+        auto generatedPacketBounds = packetBounds;
+        auto topCrimp = generatedPacketBounds.removeFromTop (48.0f).reduced (9.0f, 7.0f);
+        auto bottomCrimp = getLocalBounds().toFloat().reduced (21.0f).removeFromBottom (44.0f);
+
+        g.setColour (packetCream.withAlpha (0.28f));
+        g.fillRoundedRectangle (topCrimp, 13.0f);
+        g.fillRoundedRectangle (bottomCrimp, 13.0f);
+
+        g.setColour (packetInk.withAlpha (0.2f));
+        drawCrimpMarks (g, topCrimp);
+        drawCrimpMarks (g, bottomCrimp);
+
+        g.setColour (packetCream.withAlpha (0.24f));
+        drawSideSealMarks (g, getLocalBounds().toFloat().reduced (12.0f));
+
+        const auto tearY = 116.0f;
+        g.setColour (packetCream.withAlpha (0.75f));
+        for (float x = 72.0f; x < static_cast<float> (getWidth()) - 72.0f; x += 22.0f)
+        {
+            if ((x > 72.0f && x < 184.0f) || (x > 268.0f && x < 452.0f))
+                continue;
+
+            g.fillRoundedRectangle (x, tearY, 11.0f, 2.0f, 1.0f);
+        }
+
+        g.setColour (packetCream.withAlpha (0.64f));
+        g.setFont (juce::FontOptions (8.5f, juce::Font::bold));
+        g.drawText ("TEAR HERE", getWidth() - 132, static_cast<int> (tearY - 12.0f),
+                    62, 12, juce::Justification::centred);
+
+        g.setColour (packetPurple.withAlpha (0.92f));
+        juce::Path stripe;
+        stripe.startNewSubPath (packetBounds.getX() + 28.0f, 92.0f);
+        stripe.lineTo (packetBounds.getX() + 80.0f, 92.0f);
+        stripe.lineTo (packetBounds.getX() + 54.0f, static_cast<float> (getHeight()) - 104.0f);
+        stripe.lineTo (packetBounds.getX() + 2.0f, static_cast<float> (getHeight()) - 104.0f);
+        stripe.closeSubPath();
+        g.fillPath (stripe);
+
+        g.setColour (packetCream.withAlpha (0.16f));
+        g.drawLine (92.0f, 144.0f, 92.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
+        g.drawLine (static_cast<float> (getWidth()) - 82.0f, 144.0f,
+                    static_cast<float> (getWidth()) - 82.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
+
+        drawPacketCopy (g, getLocalBounds().toFloat().reduced (12.0f));
     }
 
-    g.setColour (packetCream.withAlpha (0.64f));
-    g.setFont (juce::FontOptions (8.5f, juce::Font::bold));
-    g.drawText ("TEAR HERE", getWidth() - 132, static_cast<int> (tearY - 12.0f),
-                62, 12, juce::Justification::centred);
+    g.setColour (packetInk.withAlpha (usingBackgroundArtwork ? 0.36f : 0.28f));
+    g.strokePath (packetPath, juce::PathStrokeType (8.0f));
 
-    g.setColour (packetPurple.withAlpha (0.92f));
-    juce::Path stripe;
-    stripe.startNewSubPath (packetBounds.getX() + 28.0f, 92.0f);
-    stripe.lineTo (packetBounds.getX() + 80.0f, 92.0f);
-    stripe.lineTo (packetBounds.getX() + 54.0f, static_cast<float> (getHeight()) - 104.0f);
-    stripe.lineTo (packetBounds.getX() + 2.0f, static_cast<float> (getHeight()) - 104.0f);
-    stripe.closeSubPath();
-    g.fillPath (stripe);
+    g.setColour (packetCream.withAlpha (usingBackgroundArtwork ? 0.84f : 1.0f));
+    g.strokePath (packetPath, juce::PathStrokeType (2.4f));
 
-    g.setColour (packetCream.withAlpha (0.16f));
-    g.drawLine (92.0f, 144.0f, 92.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
-    g.drawLine (static_cast<float> (getWidth()) - 82.0f, 144.0f,
-                static_cast<float> (getWidth()) - 82.0f, static_cast<float> (getHeight()) - 108.0f, 1.4f);
+    const auto innerPacket = packetBounds.reduced (13.0f);
+    g.setColour (packetCream.withAlpha (usingBackgroundArtwork ? 0.12f : 0.22f));
+    g.drawRoundedRectangle (innerPacket, 19.0f, 1.2f);
 
-    drawPacketCopy (g, getLocalBounds().toFloat().reduced (12.0f));
+    if (usingBackgroundArtwork)
+    {
+        drawGlassPanel (g, presetPanelBounds_, 12.0f, 0.34f, 0.08f);
+        drawGlassPanel (g, controlPanelBounds_, 18.0f, 0.28f, 0.07f);
+        drawGlassPanel (g, performanceRowBounds_, 12.0f, 0.32f, 0.08f);
+        drawGlassPanel (g, proRowBounds_, 8.0f, 0.16f, 0.05f);
+        drawGlassPanel (g, ctaPanelBounds_, 10.0f, 0.14f, 0.04f);
+
+        if (! proRowBounds_.isEmpty())
+        {
+            g.setColour (packetCream.withAlpha (0.56f));
+            g.setFont (juce::FontOptions (11.0f, juce::Font::bold));
+            g.drawText (active_product::theme::unlockBadgeText,
+                        proRowBounds_.reduced (8, 1),
+                        juce::Justification::centred);
+        }
+
+        return;
+    }
 
     if (! proRowBounds_.isEmpty())
     {
@@ -597,28 +698,68 @@ void SauceBoxAudioProcessorEditor::paint (juce::Graphics& g)
     }
 }
 
+void SauceBoxAudioProcessorEditor::loadBackgroundImage()
+{
+    const auto asset = getActiveBackgroundAsset();
+
+    if (asset.data != nullptr && asset.size > 0)
+        backgroundImage_ = juce::ImageFileFormat::loadFrom (asset.data, static_cast<size_t> (asset.size));
+}
+
 void SauceBoxAudioProcessorEditor::resized()
 {
+    presetPanelBounds_ = {};
+    controlPanelBounds_ = {};
+    performanceRowBounds_ = {};
+    ctaPanelBounds_ = {};
+    proRowBounds_ = {};
+
     auto area = getLocalBounds().reduced (34, 28);
+    const auto usingBackgroundArtwork = backgroundImage_.isValid();
 
-    auto header = area.removeFromTop (106);
-    titleLabel.setBounds (header.removeFromTop (62));
-    header.removeFromTop (4);
-    bylineLabel.setBounds (header.removeFromTop (22));
+    if (usingBackgroundArtwork)
+    {
+        titleLabel.setBounds ({});
+        bylineLabel.setBounds ({});
+        area.removeFromTop (50);
+    }
+    else
+    {
+        auto header = area.removeFromTop (106);
+        titleLabel.setBounds (header.removeFromTop (62));
+        header.removeFromTop (4);
+        bylineLabel.setBounds (header.removeFromTop (22));
 
-    area.removeFromTop (4);
+        area.removeFromTop (4);
+    }
 
-    auto presetRow = area.removeFromTop (42).reduced (18, 3);
-    presetRow.removeFromLeft (48);
+    auto presetRow = area.removeFromTop (42);
+    if (usingBackgroundArtwork)
+        presetRow = presetRow.withSizeKeepingCentre (430, presetRow.getHeight());
+
+    presetPanelBounds_ = presetRow.expanded (8, 5);
+    presetRow = presetRow.reduced (12, 3);
     presetLabel.setBounds (presetRow.removeFromLeft (66));
+    presetRow.removeFromLeft (8);
     presetBox.setBounds (presetRow.removeFromLeft (300).reduced (2, 0));
 
     auto footer = area.removeFromBottom (54).reduced (16, 9);
-    auto ctaButtonSlot = footer.removeFromRight (214);
-    ctaButton.setBounds (ctaButtonSlot.withSizeKeepingCentre (204, 32));
+    auto ctaButtonSlot = footer.removeFromRight (150);
+    ctaButton.setBounds (ctaButtonSlot.withSizeKeepingCentre (132, 24));
+    ctaButton.setAlpha (usingBackgroundArtwork ? 0.72f : 1.0f);
+    ctaPanelBounds_ = ctaButton.getBounds().expanded (6, 4);
     ctaLabel.setBounds (footer.reduced (8, 1));
 
-    auto macroZone = area.removeFromTop (136);
+    auto controlZone = area.removeFromTop (
+       #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
+        192
+       #else
+        204
+       #endif
+    );
+    controlPanelBounds_ = controlZone.withSizeKeepingCentre (430, controlZone.getHeight() - 4);
+
+    auto macroZone = controlZone.removeFromTop (124);
     {
         const int knobW = 204;
         auto knobArea = macroZone.withSizeKeepingCentre (knobW, macroZone.getHeight());
@@ -626,7 +767,7 @@ void SauceBoxAudioProcessorEditor::resized()
         instantSauceSlider.setBounds (knobArea.reduced (6, 2));
     }
 
-    auto freeRow = area.removeFromTop (
+    auto freeRow = controlZone.removeFromTop (
        #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
         62
        #else
@@ -634,7 +775,7 @@ void SauceBoxAudioProcessorEditor::resized()
        #endif
     );
     {
-        const int knobW = freeRow.getWidth() / 3;
+        const int knobW = controlPanelBounds_.getWidth() / 3;
         auto centredRow = freeRow.withSizeKeepingCentre (knobW * 2, freeRow.getHeight());
 
         const auto placeKnob = [] (juce::Slider& sl, juce::Label& lb, juce::Rectangle<int> cell)
@@ -647,10 +788,11 @@ void SauceBoxAudioProcessorEditor::resized()
         placeKnob (outputSlider, outputKnobLabel, centredRow.removeFromLeft (knobW));
     }
 
-    area.removeFromTop (4);
+    area.removeFromTop (usingBackgroundArtwork ? 0 : 4);
 
    #if defined (SAUCE_PRODUCT_SECRET_SAUCE)
     auto performanceRow = area.removeFromTop (38).reduced (12, 4);
+    performanceRowBounds_ = performanceRow.expanded (8, 5);
     {
         const int buttonW = performanceRow.getWidth() / 6;
         freezeButton.setBounds (performanceRow.removeFromLeft (buttonW).reduced (3, 1));
@@ -661,8 +803,30 @@ void SauceBoxAudioProcessorEditor::resized()
         throwButton.setBounds (performanceRow.reduced (3, 1));
     }
 
-    area.removeFromTop (2);
+    area.removeFromTop (usingBackgroundArtwork ? 0 : 2);
    #endif
+
+    if (usingBackgroundArtwork)
+    {
+        auto badgeRow = area.removeFromTop (30).reduced (22, 4);
+        proRowBounds_ = badgeRow.removeFromLeft (150);
+
+        for (auto* comp : { static_cast<juce::Component*> (&driveSlider),
+                            static_cast<juce::Component*> (&crushSlider),
+                            static_cast<juce::Component*> (&wowDepthSlider),
+                            static_cast<juce::Component*> (&wowRateSlider),
+                            static_cast<juce::Component*> (&toneSlider),
+                            static_cast<juce::Component*> (&driveKnobLabel),
+                            static_cast<juce::Component*> (&textureKnobLabel),
+                            static_cast<juce::Component*> (&wowDepthKnobLabel),
+                            static_cast<juce::Component*> (&wowRateKnobLabel),
+                            static_cast<juce::Component*> (&toneKnobLabel) })
+        {
+            comp->setBounds ({});
+        }
+
+        return;
+    }
 
     auto proPanel = area.reduced (22, 0);
     proRowBounds_ = proPanel;

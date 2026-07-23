@@ -10,6 +10,8 @@ Current build targets:
   host-tempo-synced movement divisions, moving filter, width, six performance
   buttons, flavor-specific DSP profiles, smoothed movement/performance
   transitions, tuned factory flavor presets, mix, output, and safety limiting.
+- Product packet backgrounds are embedded into the plugin binary from
+  `backgrounds/` and selected per active product.
 
 Flagship paid product direction:
 
@@ -58,6 +60,7 @@ The 808Bytes product ecosystem grows around the Sauce family:
 See `SECRET_SAUCE_PRODUCT_STRATEGY.md` for the Secret Sauce product plan.
 See `PRODUCT_LINEUP.md` for all singles, suite packaging, SKUs, and planned plugin IDs.
 See `SECRET_SAUCE_LISTENING_CHECKLIST.md` for the first real-material listening pass.
+See `SECRET_SAUCE_CANVA_ASSET_GUIDE.md` for the packet art and texture direction.
 
 ## Build (macOS)
 

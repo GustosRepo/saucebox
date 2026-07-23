@@ -16,7 +16,7 @@ inline constexpr auto packetFlavor = "HOT";
 inline constexpr auto packetBackgroundWord = "FIRE";
 inline constexpr auto packetNote = "i got\nthe sauce";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need your track release-ready?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "UNLOCK PRO";
 }

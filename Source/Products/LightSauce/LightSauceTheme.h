@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "LIGHT";
 inline constexpr auto backgroundWord = "LIFT";
 inline constexpr auto note = "just a\ntouch";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need a cleaner mix?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "LIGHT SAUCE PRO";
 }

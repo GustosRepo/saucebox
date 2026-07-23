@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "GLUE";
 inline constexpr auto backgroundWord = "LOCK";
 inline constexpr auto note = "hold it\ntogether";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need the mix tightened?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "GLUE SAUCE PRO";
 }

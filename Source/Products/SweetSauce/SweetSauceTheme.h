@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "SWEET";
 inline constexpr auto backgroundWord = "SHINE";
 inline constexpr auto note = "smooth\nthe hook";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need the vocal finished?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "SWEET SAUCE PRO";
 }

@@ -14,11 +14,11 @@ struct ProductManifest
     const char* manufacturerCode;
     const char* pluginCode;
     const char* licenseSku;
-    const char* trackReviewUrl;
+    const char* websiteUrl;
     const char* oneLinePromise;
     bool exposesDemoMode;
     bool exposesProMode;
-    bool exposesTrackReviewCta;
+    bool exposesWebsiteCta;
 };
 
 namespace parameters
@@ -42,7 +42,7 @@ inline constexpr ProductManifest manifest {
     "EByt",
     "GlSc",
     "glue-sauce-pro",
-    "https://saucebox.audio/review",
+    "https://808bytes.com",
     "Fast drum bus and mix bus glue with musical level control.",
     true,
     true,

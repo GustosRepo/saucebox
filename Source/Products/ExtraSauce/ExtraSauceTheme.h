@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "EXTRA";
 inline constexpr auto backgroundWord = "LOUD";
 inline constexpr auto note = "turn it\nup";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need the drop harder?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "EXTRA SAUCE PRO";
 }

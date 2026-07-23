@@ -14,11 +14,11 @@ struct ProductManifest
     const char* manufacturerCode;
     const char* pluginCode;
     const char* licenseSku;
-    const char* trackReviewUrl;
+    const char* websiteUrl;
     const char* oneLinePromise;
     bool exposesDemoMode;
     bool exposesProMode;
-    bool exposesTrackReviewCta;
+    bool exposesWebsiteCta;
     bool isSuite;
 };
 
@@ -31,7 +31,7 @@ inline constexpr ProductManifest manifest {
     "EByt",
     "SaBx",
     "sauce-box-suite",
-    "https://saucebox.audio/review",
+    "https://808bytes.com",
     "The full 808Bytes sauce suite in one bundle.",
     false,
     true,

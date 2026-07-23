@@ -41,3 +41,9 @@ Reverse, Repeat, Dropout, Tape Stop, and Throw. The Secret Sauce Flavor selector
 now applies distinct DSP profiles for timing, gate depth, tone, width,
 saturation, reverse, throw, and tape behavior. Movement/performance transitions
 are smoothed to reduce abrupt button and rhythmic gate changes.
+
+All planned product packet backgrounds now exist in `backgrounds/` and are
+embedded through the shared JUCE BinaryData path. Hot Packet and Secret Sauce
+use their own PNGs today; the mappings for Sweet Sauce, Thick Sauce, Glue Sauce,
+Drip Sauce, Extra Sauce, Light Sauce, and Sauce Box are already in place for
+future targets.

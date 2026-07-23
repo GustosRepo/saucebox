@@ -38,6 +38,7 @@ private:
     SauceBoxAudioProcessor& processorRef;
     PacketLookAndFeel packetLookAndFeel;
     juce::TooltipWindow tooltipWindow;
+    juce::Image backgroundImage_;
 
     juce::Label titleLabel;
     juce::Label bylineLabel;
@@ -73,12 +74,17 @@ private:
     juce::Label mixKnobLabel;
     juce::Label outputKnobLabel;
 
+    juce::Rectangle<int> presetPanelBounds_;
+    juce::Rectangle<int> controlPanelBounds_;
+    juce::Rectangle<int> performanceRowBounds_;
+    juce::Rectangle<int> ctaPanelBounds_;
     juce::Rectangle<int> proRowBounds_;
     bool isUpdatingInstantSauceFromPreset_ = false;
 
     std::vector<std::unique_ptr<SliderAttachment>> attachments;
     std::vector<std::unique_ptr<ButtonAttachment>> buttonAttachments;
 
+    void loadBackgroundImage();
     void setupKnob (juce::Slider& slider, juce::Label& label, const juce::String& labelText);
     void setupPerformanceButton (juce::TextButton& button, const juce::String& labelText);
     void applyInstantSauceMacro (float value);

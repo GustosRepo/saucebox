@@ -12,6 +12,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(juce)
 
+juce_add_binary_data(SauceBackgrounds
+  SOURCES
+    backgrounds/dripsauce.png
+    backgrounds/extrasauce.png
+    backgrounds/gluesauce.png
+    backgrounds/hotsauce.png
+    backgrounds/lightsauce.png
+    backgrounds/saucebox.png
+    backgrounds/secretsauce.png
+    backgrounds/sweetsauce.png
+    backgrounds/thicksauce.png
+)
+
 set(SAUCE_SHARED_SOURCES
   Source/PluginEditor.cpp
   Source/PluginEditor.h
@@ -73,6 +86,13 @@ function(add_sauce_product)
       ${SAUCE_SHARED_SOURCES}
   )
 
+  add_dependencies(${SAUCE_PRODUCT_TARGET} SauceBackgrounds)
+
+  target_include_directories(${SAUCE_PRODUCT_TARGET}
+    PRIVATE
+      "${CMAKE_CURRENT_BINARY_DIR}/juce_binarydata_SauceBackgrounds/JuceLibraryCode"
+  )
+
   juce_generate_juce_header(${SAUCE_PRODUCT_TARGET})
 
   target_compile_definitions(${SAUCE_PRODUCT_TARGET}
@@ -84,6 +104,7 @@ function(add_sauce_product)
 
   target_link_libraries(${SAUCE_PRODUCT_TARGET}
     PRIVATE
+      SauceBackgrounds
       juce::juce_audio_utils
       juce::juce_dsp
     PUBLIC

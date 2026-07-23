@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "BOX";
 inline constexpr auto backgroundWord = "SUITE";
 inline constexpr auto note = "all the\nsauce";
 inline constexpr auto presetLabel = "Suite";
-inline constexpr auto ctaLabel = "Need the whole record finished?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "SAUCE BOX SUITE";
 }

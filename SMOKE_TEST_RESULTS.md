@@ -44,13 +44,59 @@ Status: PASS
 36. Release build completed successfully after the preset/listening-prep pass.
 37. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
 38. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the preset/listening-prep pass.
+39. Added embedded packet backgrounds from `backgrounds/` through JUCE BinaryData.
+40. Release build completed successfully after the background-asset pass.
+41. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+42. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the background-asset pass.
+43. Removed duplicate generated title, crimp, tear, side-mark, stripe, and packet-copy overlays from the artwork-backed UI path.
+44. Restyled controls with restrained dark panels/buttons so the packet PNGs carry the product identity.
+45. Release build completed successfully after the UI cleanup pass.
+46. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+47. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the UI cleanup pass.
+48. Replaced the track-review footer CTA with a smaller `808bytes.com` website link and updated product metadata URLs.
+49. Release build completed successfully after the website-footer pass.
+50. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+51. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the website-footer pass.
+52. Polished artwork-backed UI hierarchy: softened panel shadows/borders, tightened Flavor panel width, merged Sauce/Mix/Output into one central cluster, dimmed locked Pro controls, and reduced website footer prominence.
+53. Release build completed successfully after the hierarchy-polish pass.
+54. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+55. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the hierarchy-polish pass.
+56. Widened the editor canvas from `720x560` to `980x560` to better match the packet artwork aspect ratio.
+57. Release build completed successfully after the editor-width pass.
+58. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+59. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the editor-width pass.
+60. Changed the editor to use each embedded packet PNG's native dimensions when artwork is available.
+61. Release build completed successfully after the native-artwork-size pass.
+62. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+63. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the native-artwork-size pass.
+64. Changed the artwork-backed editor sizing to use each packet PNG's native width while keeping the fixed `560` px editor height, making the resize wider-only.
+65. Release build completed successfully after the fixed-height/native-width pass.
+66. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+67. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the fixed-height/native-width pass.
+68. Reverted the sizing experiment back to each artwork-backed editor using the packet PNG's full native width and height.
+69. Release build completed successfully after reverting to full native artwork dimensions.
+70. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+71. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after reverting to full native artwork dimensions.
+72. Reduced the artwork-backed editor back to the practical compact `980x560` size after native artwork dimensions proved too large for regular plugin use.
+73. Release build completed successfully after reducing the editor to `980x560`.
+74. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+75. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after reducing the editor to `980x560`.
+76. Raised the artwork-backed control stack and capped the locked Pro panel height so the controls clear the lower-right packet logo art.
+77. Release build completed successfully after the lower-logo clearance layout pass.
+78. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+79. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the lower-logo clearance layout pass.
+80. Protected the lower-right brand zone by hiding detailed locked Pro controls on artwork-backed UIs and replacing them with a small dim Pro badge.
+81. Release build completed successfully after the protected-brand-zone layout pass.
+82. Codesign verification passed again for Hot Packet and Secret Sauce AU, VST3, and Standalone artifacts.
+83. `auval -v aufx SeSc EByt` and `auval -v aufx SBox SaBx` both passed after the protected-brand-zone layout pass.
 
 ### Notes
 
 - This is a compile/build validation only.
 - Secret Sauce has its own plugin target and identity.
 - Secret Sauce engine v0 is intentionally simple. It now includes first-pass performance gestures, host-tempo-synced timing, flavor-specific DSP profiles, smoothed movement transitions, and tuned factory flavor presets, but pitch/formant, deeper reverse/grab, throw timing, and refined tape-stop behavior still need listening-driven iteration.
-- The other single products now have metadata scaffolds, but do not have dedicated plugin targets or DSP engines yet.
+- The other single products now have metadata scaffolds and mapped packet backgrounds, but do not have dedicated plugin targets or DSP engines yet.
+- The artwork-backed UI path now treats the PNG as the main package design and keeps the old generated package details as fallback-only drawing.
 - The build used the existing `COPY_PLUGIN_AFTER_BUILD` behavior and installed/overwrote Hot Packet and Secret Sauce AU/VST3 artifacts in the user plugin folders.
 
 ### Remaining validation

@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "SECRET";
 inline constexpr auto backgroundWord = "MOVE";
 inline constexpr auto note = "flip the\nsample";
 inline constexpr auto presetLabel = "Flavor";
-inline constexpr auto ctaLabel = "Need help finishing the record?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "SECRET SAUCE PRO";
 }

@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "THICK";
 inline constexpr auto backgroundWord = "WEIGHT";
 inline constexpr auto note = "make it\nhit";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need the low end fixed?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "THICK SAUCE PRO";
 }

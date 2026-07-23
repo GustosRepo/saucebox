@@ -16,7 +16,7 @@ inline constexpr auto bottleFlavor = "DRIP";
 inline constexpr auto backgroundWord = "SPACE";
 inline constexpr auto note = "send it\nwide";
 inline constexpr auto presetLabel = "Preset";
-inline constexpr auto ctaLabel = "Need better effects?";
-inline constexpr auto ctaButtonText = "Free Track Review";
+inline constexpr auto ctaLabel = "";
+inline constexpr auto ctaButtonText = "808bytes.com";
 inline constexpr auto unlockBadgeText = "DRIP SAUCE PRO";
 }

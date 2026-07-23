@@ -151,5 +151,6 @@ The first engineering step is product scaffolding:
    throw, and tape transitions. Done.
 9. Tune the 12 factory flavor presets for a stronger first listening pass. Done.
 10. Add a real-material listening checklist for feedback capture. Done.
-11. Move shared DSP into reusable modules before deepening the advanced Secret
+11. Wire packet background art into the shared JUCE UI BinaryData path. Done.
+12. Move shared DSP into reusable modules before deepening the advanced Secret
    Sauce movement engine.

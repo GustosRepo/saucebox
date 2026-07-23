@@ -14,10 +14,10 @@ struct ProductManifest
     const char* manufacturerCode;
     const char* pluginCode;
     const char* licenseSku;
-    const char* trackReviewUrl;
+    const char* websiteUrl;
     bool exposesFreeMode;
     bool exposesProMode;
-    bool exposesTrackReviewCta;
+    bool exposesWebsiteCta;
 };
 
 namespace parameters
@@ -46,7 +46,7 @@ inline constexpr ProductManifest manifest {
     "SaBx",
     "SBox",
     "hot-packet-pro",
-    "https://saucebox.audio/review",
+    "https://808bytes.com",
     true,
     true,
     true

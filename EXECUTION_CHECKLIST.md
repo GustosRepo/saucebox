@@ -19,6 +19,9 @@
 - [x] Add first-pass smoothing for Secret Sauce gates, reverse, throw, and tape transitions.
 - [x] Tune Secret Sauce factory flavor presets for the first real-material listening pass.
 - [x] Add Secret Sauce listening checklist for user feedback capture.
+- [x] Wire packet background art from `backgrounds/` into the shared JUCE UI for all mapped products.
+- [x] Remove duplicate generated packet decorations from the artwork-backed UI path.
+- [x] Polish artwork-backed UI hierarchy: softer panels, tighter Flavor row, unified Sauce/Mix/Output cluster, quieter Pro row, smaller website footer.
 - [ ] Extract shared DSP modules needed by both products.
 - [ ] Build Secret Sauce advanced engine modules: random modulation, pitch/formant, deeper reverse/grab, refined synced throw effects, refined tape stop.
 - [ ] Replace Secret Sauce packet-style UI with a dedicated flagship visual system.
@@ -37,7 +40,7 @@
 - [x] Confirm Pro unlock controls: Drive, Texture, Wow Depth, Wow Rate, Tone, Mix, Output. (Locked in PRODUCT_REQUIREMENTS.md and SCOPE_LOCK_V1.md)
 - [x] Confirm Pro-only features list and lock points. (Locked in PRODUCT_REQUIREMENTS.md and SCOPE_LOCK_V1.md)
 - [ ] Confirm price target for Pro (single low-friction number). (Currently only defined as "low one-time price")
-- [x] Confirm client CTA target URL (track review page). (https://saucebox.audio/review)
+- [x] Confirm footer website URL. (`https://808bytes.com`)
 - [x] Freeze V1 scope: no new features until launch. (Locked in SCOPE_LOCK_V1.md)
 
 Definition of done:
@@ -108,20 +111,19 @@ Definition of done:
 - Pro feels meaningfully faster/deeper than Free.
 - Free still feels complete and trustworthy.
 
-## Phase 3 - Conversion and Client Funnel (Week 2)
+## Phase 3 - Conversion and Website Funnel (Week 2)
 
 ### In-plugin conversion touchpoints
 
-- [x] Add subtle footer CTA: free track review.
+- [x] Add subtle footer website link: `808bytes.com`.
 - [ ] Add first-run message with outcome-focused copy.
 - [ ] Add Pro unlock prompt only at intent moments.
 
 ### Funnel plumbing
 
-- [ ] Launch simple track review page/form. (Spec written; page not built/launched)
-- [ ] Capture Name, Email, Song Link, Problem statement. (Specified in TRACK_REVIEW_LANDING_SPEC.md)
-- [x] Add auto-response and follow-up template. (Drafted in TRACK_REVIEW_LANDING_SPEC.md)
-- [x] Define turnaround SLA for track feedback. (24 to 48 hours in TRACK_REVIEW_LANDING_SPEC.md)
+- [ ] Launch `808bytes.com` product pages for Hot Packet, Secret Sauce, and Sauce Box.
+- [ ] Capture email for launch updates and product drops.
+- [ ] Add download/purchase routing once pricing is locked.
 
 Definition of done:
 
@@ -154,10 +156,10 @@ Definition of done:
 
 - [ ] Free downloads.
 - [ ] Active users (opened plugin 3+ sessions).
-- [ ] CTA click-through rate.
-- [ ] Track review submissions.
+- [ ] Website click-through rate.
+- [ ] Email signups.
 - [ ] Pro conversion rate.
-- [ ] Service conversion rate from plugin users.
+- [ ] Suite conversion rate from single-product users.
 
 ## Discipline Rules (Anti Scope Drift)
 
@@ -181,5 +183,5 @@ Definition of done:
 - ~~Decide visual locked-state treatment for Pro controls.~~ (Done: dark overlay + "🔒 PRO" badge + disabled)
 - Run explicit DAW save/recall and preset switching during playback.
 - ~~Clean stale `Sauce Box` build artifacts before packaging release files.~~ (Done: removed from `build/SauceBox_artefacts/Release`)
-- Build and publish the actual track review landing page/form from TRACK_REVIEW_LANDING_SPEC.md.
+- Build and publish the 808Bytes product pages before public release.
 - Decide whether first-run hints belong in Free V1 or should stay out to keep the interface clean.
